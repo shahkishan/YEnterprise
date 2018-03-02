@@ -9,6 +9,7 @@ import Vuex from 'vuex'
 import {store} from './store'
 Vue.use(Vuetify)
 Vue.use(Vuex)
+const HumanIcon = require('mdi-vue/HumanIcon')
 
 Vue.config.productionTip = false
 
@@ -18,5 +19,7 @@ new Vue({
   router,
   store,  
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  HumanIcon
+
 })
