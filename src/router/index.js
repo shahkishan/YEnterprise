@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Main from '@/components/Main'
 import Login from '@/components/Login'
 import Dashboard from '@/components/Dashboard'
+import Users from '@/components/Users'
 Vue.use(Router)
 
 export default new Router({
@@ -16,10 +17,16 @@ export default new Router({
       path:'/login',
       name: 'Login',
       component: Login
-    },{
+    },
+    {
       path:'/dashboard',
       name:'Dashboard',
       component:Dashboard
+    },
+    {
+      path:'/users',
+      name:'Users',
+      component:Users
     }
   ]
 })
