@@ -40,7 +40,6 @@
   </v-container>
 </template>
 
-
 <script>
   export default {
     data () {
@@ -61,6 +60,9 @@
       onLogin(){
         this.$store.commit('LOGIN_SUCCESS',true);  
         console.log(this.$store.getters.isLoggedIn);
+
+        if(this.$store.getters.isLoggedIn)
+          this.$router.push('dashboard');
       }
     }
   }
