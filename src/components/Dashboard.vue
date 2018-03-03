@@ -1,8 +1,9 @@
 <template>
 
   <v-container fluid grid-list-md text-xs-center mt-5>
-    <v-layout v-bind="binding">
-      <v-flex d-flex xs12 md6 sm8 offset-md0 offset-sm2>
+    <!-- <v-layout v-bind="binding"> -->
+      <v-layout row wrap>
+      <v-flex d-flex xs12 md3 sm6 offset-md0>
         <v-card dark color="primary" height="200px" width="100%">
           <!-- <v-icon class="icon">person</v-icon> -->
           <!-- <v-icon class="icon">mdi-human-icon</v-icon> -->
@@ -12,7 +13,7 @@
           <v-card-text><h2>Users</h2></v-card-text>
         </v-card>
       </v-flex>
-      <v-flex d-flex xs12 md6 sm8 offset-md0 offset-sm2>
+      <v-flex d-flex xs12 md3 sm6 offset-md0>
         <v-card dark color="primary" height="200px" width="100%">
           <svg class="icon" viewBox="0 0 24 24">
               <path fill="#ffffff" d="M12,6A3,3 0 0,0 9,9A3,3 0 0,0 12,12A3,3 0 0,0 15,9A3,3 0 0,0 12,6M6,8.17A2.5,2.5 0 0,0 3.5,10.67A2.5,2.5 0 0,0 6,13.17C6.88,13.17 7.65,12.71 8.09,12.03C7.42,11.18 7,10.15 7,9C7,8.8 7,8.6 7.04,8.4C6.72,8.25 6.37,8.17 6,8.17M18,8.17C17.63,8.17 17.28,8.25 16.96,8.4C17,8.6 17,8.8 17,9C17,10.15 16.58,11.18 15.91,12.03C16.35,12.71 17.12,13.17 18,13.17A2.5,2.5 0 0,0 20.5,10.67A2.5,2.5 0 0,0 18,8.17M12,14C10,14 6,15 6,17V19H18V17C18,15 14,14 12,14M4.67,14.97C3,15.26 1,16.04 1,17.33V19H4V17C4,16.22 4.29,15.53 4.67,14.97M19.33,14.97C19.71,15.53 20,16.22 20,17V19H23V17.33C23,16.04 21,15.26 19.33,14.97Z" />
@@ -20,7 +21,7 @@
           <v-card-text><h2>Customers</h2></v-card-text>
         </v-card>
       </v-flex>
-      <v-flex d-flex xs12 md6 sm8 offset-md0 offset-sm2>
+      <v-flex d-flex xs12 md3 sm6 offset-md0>
         <v-card dark color="primary" height="200px" width="100%">
         <svg class="icon" viewBox="0 0 24 24">
             <path fill="#ffffff" d="M20,14H4V8H7V10H9V8H15V10H17V8H20M20,19H4V17H20M9,4H15V6H9M20,6H17V4C17,2.89 16.11,2 15,2H9C7.89,2 7,2.89 7,4V6H4C2.89,6 2,6.89 2,8V19C2,20.11 2.89,21 4,21H20C21.11,21 22,20.11 22,19V8C22,6.89 21.11,6 20,6Z" />
@@ -28,7 +29,7 @@
           <v-card-text><h2>Suppliers</h2></v-card-text>
         </v-card>
       </v-flex>
-      <v-flex d-flex xs12 md6 sm8 offset-md0 offset-sm2>
+      <v-flex d-flex xs12 md3 sm6 offset-md0>
 
         <v-card dark color="secondary" height="200px">
           <svg class="icon" viewBox="0 0 24 24">
@@ -39,23 +40,24 @@
       </v-flex>
     </v-layout>
 
-    <v-layout v-bind="binding">
-      <v-flex d-flex xs12 md6 sm8 offset-md0 offset-sm2>
+    <!-- <v-layout v-bind="binding"> -->
+      <v-layout row wrap>
+      <v-flex d-flex xs12 md3 sm6 offset-md0>
         <v-card dark color="primary" height="200px" width="100%" raised  hover="">
           <v-card-text>3</v-card-text>
         </v-card>
       </v-flex>
-      <v-flex  d-flex xs12 md6 sm8 offset-md0 offset-sm2>
+      <v-flex  d-flex xs12 md3 sm6 offset-md0>
         <v-card dark color="secondary" height="200px" width="100%">
           <v-card-text>3</v-card-text>
         </v-card>
       </v-flex>
-      <v-flex d-flex xs12 md6 sm8 offset-md0 offset-sm2>
+      <v-flex d-flex xs12 md3 sm6 offset-md0>
         <v-card dark color="primary" height="200px" width="100%">
           <v-card-text>3</v-card-text>
         </v-card>
       </v-flex>
-      <v-flex d-flex xs12 md6 sm8 offset-md0 offset-sm2>
+      <v-flex d-flex xs12 md3 sm6 offset-md0>
         <v-card dark color="secondary" height="200px">
           <v-card-text>3</v-card-text>
         </v-card>
