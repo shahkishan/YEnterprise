@@ -60,7 +60,7 @@
         // if(this.$store.getters.isLoggedIn)
         //   this.$router.push('dashboard');
 
-        this.$http.post('http://yenterprise-backend.herokuapp.com/login',{
+        this.$http.post('https://yenterprise-backend.herokuapp.com/login',{
           username: this.email,
           password: this.password,
           year:this.year
