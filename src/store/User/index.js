@@ -11,7 +11,6 @@ export default{
     },
     getters: {
         isLoggedIn: state=> state.isLoggedIn,
-        isLoginPage: state=> state.isLoginPage,
         email:state=>state.email,
         password:state=>state.password,
         year:state=>state.year

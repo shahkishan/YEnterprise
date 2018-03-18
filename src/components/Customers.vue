@@ -169,10 +169,6 @@
 
     created () {
       this.initialize()
-        
-          this.$store.dispatch('loginPage',false)
-      
-          console.log("login page: "+this.$store.getters.isLoginPage)
     },
 
     methods: {
@@ -219,6 +215,11 @@
       userSelected(user){
           console.log(user.id+" "+user.name+" "+user.email+" "+user.contact);
       }
-    }
+    },
+    created(){
+          this.$store.dispatch('loginPage',false)
+
+		  console.log("login page: "+this.$store.getters.isLoginPage)
+	  }
   }
 </script>
