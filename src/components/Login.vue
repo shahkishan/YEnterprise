@@ -24,7 +24,12 @@
 					</v-card-text>
 				</v-card>
 			</v-flex>
+      
 		</v-layout>
+    <v-alert xs12 sm12 offset-sm3 type="error" dismissible v-model="alert" v-if="alert">
+      Invalid email or password
+    </v-alert>
+    
 	</v-container>
 </template>
 
@@ -49,7 +54,8 @@
           {text:'2017-18'},
           {text:'2016-17'},
           {text:'2015-16'}
-        ]
+        ],
+        alert: false
       }
     },
     methods:{
@@ -59,6 +65,9 @@
           console.log('here')
           this.$store.dispatch('loginSuccess',this.year)
           this.$router.push('dashboard');
+        } else {
+         // alert("here")
+          this.alert=true;
         }
           console.log(this.$store.getters.isLoggedIn);
           console.log(this.year);
