@@ -53,12 +53,18 @@
       }
     },
     methods:{
+      
       onLogin(){
-        this.$store.commit('LOGIN_SUCCESS',true);
-        console.log(this.$store.getters.isLoggedIn);
-        console.log(this.year);
+        if(this.email=='admin@admin.com' && this.password=='admin123'){
+          console.log('here')
+          this.$store.dispatch('loginSuccess',this.year)
+          this.$router.push('dashboard');
+        }
+          console.log(this.$store.getters.isLoggedIn);
+          console.log(this.year);
         // if(this.$store.getters.isLoggedIn)
         //   this.$router.push('dashboard');
+        // this.$user.login();
 
         this.$http.post('https://yenterprise-backend.herokuapp.com/login',{
           username: this.email,
@@ -70,6 +76,11 @@
           console.log(error)
         })
       }
+    },
+    created(){
+     // alert('created')
+        this.$store.dispatch('loginPage',true)
+        console.log("login page: "+this.$store.getters.isLoginPage)
     }
   }
 </script>

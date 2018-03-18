@@ -19,8 +19,33 @@
                 <v-text-field label="Contact Number" v-model="editedItem.contact"></v-text-field>
               </v-flex>
               <v-flex xs12 sm6 md4>
-                <v-text-field label="Date of Birth" v-model="editedItem.dob"></v-text-field>
-              </v-flex>
+      <v-menu
+        ref="menu"
+        lazy
+        :close-on-content-click="false"
+        v-model="menu"
+        transition="scale-transition"
+        offset-y
+        full-width
+        :nudge-right="40"
+        min-width="290px"
+        :return-value.sync="date"
+      >
+        <v-text-field
+          slot="activator"
+          label="Date of Birth"
+          v-model="editedItem.dob"
+          prepend-icon="event"
+          readonly
+        ></v-text-field>
+        <v-date-picker v-model="editedItem.dob" no-title scrollable>
+          <v-spacer></v-spacer>
+          <v-btn flat color="primary" @click="menu = false">Cancel</v-btn>
+          <v-btn flat color="primary" @click="$refs.menu.save(date)">OK</v-btn>
+        </v-date-picker>
+      </v-menu>
+    </v-flex>
+    <v-spacer></v-spacer>
               <!-- <v-flex xs12 sm6 md4>
                 <v-text-field label="Protein (g)" v-model="editedItem.protein"></v-text-field>
               </v-flex> -->
@@ -100,6 +125,7 @@
   export default {
     data: () => ({
       dialog: false,
+      idCnt:4,
               headers:[
             {text: 'Id', value:'id', sortable: false},
             {text:'Name',value:'name', sortable: false},
@@ -112,26 +138,26 @@
       items: [],
       editedIndex: -1,
       editedItem: {
-       id: 1,
-       name: '',
+        id: 4,
+        name: '',
         email: '',
         contact: '',
         dob:'',
-        date_created: ''
+        date_created: '2017-01-01'
       },
       defaultItem: {
-        id: 1,
-       name: '',
+        id: 4,
+        name: '',
         email: '',
         contact: '',
         dob:'',
-        date_created: '1/1/2017'
+        date_created: '2017-01-01'
       }
     }),
 
     computed: {
       formTitle () {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+        return this.editedIndex === -1 ? 'New User' : 'Edit User'
       }
     },
 
@@ -148,9 +174,9 @@
     methods: {
       initialize () {
         this.items = [
-           {value: false,id: 1, name:'Kishan', email:'kshah1125@gmail.com', contact:'8511528252', dob:'20/01/1997',date_created:'1/1/2017'},
-            {value: false,id: 1, name:'Shah', email:'ks25@gmail.com',contact: '8200694242', dob:'20/02/1997',date_created:'1/3/2017'},
-            {value: false,id: 1, name:'abc', email:'ksha35@gmail.com',contact:'1234567890', dob:'20/04/1997',date_created:'1/2/2017'}
+           {value: false,id: 1, name:'Kishan', email:'kshah1125@gmail.com', contact:'8511528252', dob:'1997-20-01',date_created:'2017-01-01'},
+            {value: false,id: 2, name:'Shah', email:'ks25@gmail.com',contact: '8200694242', dob:'1997-02-02',date_created:'2017-02-05'},
+            {value: false,id: 3, name:'abc', email:'ksha35@gmail.com',contact:'1234567890', dob:'1995-03-05',date_created:'2018-01-02'}
         ]
       },
 
@@ -163,6 +189,7 @@
       deleteItem (item) {
         const index = this.items.indexOf(item)
         confirm('Are you sure you want to delete this item?') && this.items.splice(index, 1)
+        this.idCnt--;
       },
 
       close () {
@@ -174,12 +201,15 @@
       },
 
       save () {
+        this.editItem.id=this.idCnt
         if (this.editedIndex > -1) {
           Object.assign(this.items[this.editedIndex], this.editedItem)
         } else {
           this.items.push(this.editedItem)
         }
+        
         this.close()
+        this.idCnt++
       },
 
       userSelected(user){

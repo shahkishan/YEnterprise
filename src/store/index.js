@@ -1,24 +1,38 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import user from './User/index'
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({
+    // modules:{
+    //     user: user
+    // },
     state:{
         count:0,
-        isLoggedIn: false
+        isLoggedIn: false,
+        isLoginPage:false
     },
     getters: {
-        isLoggedIn: state=> state.isLoggedIn
-
+        // isLoggedIn: state=> state.isLoggedIn,
+        isLoginPage: state=> state.isLoginPage
     },
     mutations:{
-        LOGIN_SUCCESS:(state,payload)=>{
-            state.isLoggedIn=!state.isLoggedIn;
+        // LOGIN_SUCCESS:(state,payload)=>{
+        //     state.isLoggedIn=!state.isLoggedIn;
+        // },
+
+        LOGIN_PAGE:(state,payload)=>{
+            state.isLoginPage=payload;
+        }
+    },
+    actions:{
+        // loginSuccess: (context,payload)=>{
+        //     context.commit("LOGIN_SUCCESS",payload)
+        // }
+
+        loginPage({commit,getters},payload){
+            commit('LOGIN_PAGE',payload);
+            // alert("here  ")
         }
     }
-    // actions:{
-    //     loginSuccess: (context,payload)=>{
-    //         context.commit("LOGIN_SUCCESS",payload)
-    //     }
-    // }
 })

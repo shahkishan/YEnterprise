@@ -2,7 +2,7 @@
 	<v-container fluid grid-list-md text-xs-center mt-3 pl-3 pr-3>
 		<v-layout row wrap pl-5 pr-5>
 			<v-flex d-flex xs12 md3 sm6 pr-3 mt-5 mb-3>
-				<v-card dark color="amber darken-1" height="200px" width="90%" raised hover="" class="item">
+				<v-card dark color="amber darken-1" height="200px" width="90%" raised hover="" class="item" :to="{name:'Users'}">
 					<!-- <v-icon class="icon">person</v-icon> -->
 					<!-- <v-icon class="icon">mdi-human-icon</v-icon> -->
 					<svg class="myIcon" style="width:75px;height:75px" viewBox="0 0 24 24">
@@ -106,7 +106,11 @@
 <script>
  
   export default {
+	  created(){
+          this.$store.dispatch('loginPage',false)
 
+		  console.log("login page: "+this.$store.getters.isLoginPage)
+	  }
   
   }
 </script>
