@@ -41,12 +41,14 @@
       class="elevation-1"
     >
       <template slot="items" slot-scope="props">
-        <td>{{ props.item.id }}</td>
-        <td>{{ props.item.name }}</td>
-        <td>{{ props.item.email }}</td>
-        <td>{{ props.item.contact }}</td>
-        <td>{{ props.item.dob }}</td>
-        <td>{{ props.item.date_created }}</td>
+        <!-- <div > -->
+        <td v-on:click="userSelected(props.item)">{{ props.item.id }}</td>
+        <td v-on:click="userSelected(props.item)">{{ props.item.name }}</td>
+        <td v-on:click="userSelected(props.item)">{{ props.item.email }}</td>
+        <td v-on:click="userSelected(props.item)">{{ props.item.contact }}</td>
+        <td v-on:click="userSelected(props.item)">{{ props.item.dob }}</td>
+        <td v-on:click="userSelected(props.item)">{{ props.item.date_created }}</td>
+        <!-- </div> -->
         <!-- <td class="text-xs-right">{{ props.item.calories }}</td>
         <td class="text-xs-right">{{ props.item.fat }}</td>
         <td class="text-xs-right">{{ props.item.carbs }}</td>
@@ -178,6 +180,10 @@
           this.items.push(this.editedItem)
         }
         this.close()
+      },
+
+      userSelected(user){
+          console.log(user.id+" "+user.name+" "+user.email+" "+user.contact);
       }
     }
   }

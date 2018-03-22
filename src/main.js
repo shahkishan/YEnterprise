@@ -7,9 +7,11 @@ import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import Vuex from 'vuex'
 import {store} from './store'
+window.axios = require('axios');
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+Vue.prototype.$http = window.axios
 Vue.use(Vuetify)
 Vue.use(Vuex)
-const HumanIcon = require('mdi-vue/HumanIcon')
 
 Vue.config.productionTip = false
 
@@ -17,9 +19,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
-  store,  
+  store,
   components: { App },
   template: '<App/>',
-  HumanIcon
-
 })

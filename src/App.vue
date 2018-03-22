@@ -1,5 +1,5 @@
-<template style="height:100%;">
-  <v-app style="height:100%;">
+<template>
+  <v-app>
     <!-- <v-navigation-drawer
       persistent
       :mini-variant="miniVariant"
@@ -65,8 +65,8 @@
     </v-navigation-drawer>
     <v-footer :fixed="fixed" app>
       <span>&copy; 2017</span>
-    </v-footer> -->
-    <router-view style="height:100%;"></router-view>
+    </v-footer>-->
+    <router-view></router-view>
   </v-app>
 </template>
 

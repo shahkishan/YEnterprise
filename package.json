@@ -10,12 +10,10 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "axios": "^0.18.0",
+    "connect-history-api-fallback": "^1.5.0",
     "express": "^4.16.2",
-    "mdi": "^2.1.19",
-    "mdi-vue": "^0.2.11",
     "vue": "^2.5.2",
-    "vue-material": "^1.0.0-beta-8",
-    "vue-material-design-icons": "^1.1.0",
     "vue-router": "^3.0.1",
     "vuetify": "^1.0.0",
     "vuex": "^3.0.1"
@@ -65,7 +63,6 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ],
-  "main": "server.js",
-  "license": "ISC"
+  ]
 }
+
