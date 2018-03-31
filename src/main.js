@@ -8,7 +8,7 @@ import 'vuetify/dist/vuetify.min.css'
 import Vuex from 'vuex'
 import {store} from './store'
 var VueModels = require('vue-model')
-window.axios = require('axios');
+  window.axios = require('axios');
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 Vue.prototype.$http = window.axios
 Vue.use(Vuetify)

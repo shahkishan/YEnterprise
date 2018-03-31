@@ -14,10 +14,8 @@
 						<v-btn flat color="primary" @click="$refs.menu.save(date)">OK</v-btn>
 					</v-date-picker>
 				</v-menu>
-
 			</v-flex>
 		</v-layout>
-		<!-- <v-layout> -->
 		<v-flex xs11 sm2 ml5>
 			<v-select
 				:items="suppliers"
@@ -29,8 +27,6 @@
 			></v-select>
 		</v-flex>
 
-		
-		<!-- </v-layout> -->
 		<v-layout row wrap>
 			<v-flex xs11 sm2 ml4>
 				<v-select :items="itemsList" :filter="customFilter" v-model="editedItem" item-text="name" label="Item" autocomplete></v-select>
@@ -42,7 +38,7 @@
 				<v-text-field label="Rate" name="rate" id="rate" mask="#########" v-model.number="editedItem.rate" />
 			</v-flex>
 			<v-flex xs11 sm2>
-				<v-btn medium color="primary" v-on:click="addItem">Add</v-btn>
+				<v-btn medium color="primary" v-on:click="save">Add</v-btn>
 			</v-flex>
 		</v-layout>
 
@@ -96,9 +92,9 @@
 
 		</v-data-table>
 		</v-flex>
-		<v-layout align-content-end="true" mt2>
+		<v-layout align-content-end="true">
 			
-			<v-flex xs12 sm6 md3 lg2 offset-lg10 mt2>
+			<v-flex xs5 sm6 md6 lg2 offset-lg10 offset-md6 offset-sm6  offset-xs7>
 			<v-card md6>
 				<v-layout row wrap>
 					<v-flex xs6 md6><v-card-text>Total: </v-card-text></v-flex> <v-flex xs6 md6><v-card-text>₹{{ billTotal.totalAmt }}</v-card-text></v-flex>
@@ -127,7 +123,7 @@
 			</v-flex>
 		</v-layout>
 
-		<v-flex xs11 sm2 offset-lg10>
+		<v-flex xs5 sm6 md6 lg2 offset-lg10 offset-md6 offset-sm6  offset-xs7>
 				<v-btn medium color="primary" v-on:click="saveTransaction">Save</v-btn>
 		</v-flex>
 
@@ -135,6 +131,7 @@
 </template>
 <!--To be edited-->
 <script>
+	import ItemModel from "../models/Item"
 	export default {
 		data: () => ({
 			date: null,
@@ -142,33 +139,7 @@
 			modal: false,
 			dialog: false,
 			invoiceNo:0,
-			headers: [{
-					text: 'Item',
-					sortable: false,
-					value: 'name'
-				},
-				{
-					text: 'Quantity',
-					value: 'qty',
-					sortable: false
-				},
-				{
-					text: 'Rate',
-					value: 'rate',
-					sortable: false
-				},
-				{
-					text: 'HSN Code',
-					value: 'hsn',
-					sortable: false
-				},
-				{
-					text: 'Total',
-					value: 'total',
-					sortable: false
-				},
-				// { text: 'Actions', value: 'name', sortable: false }
-			],
+			headers: ItemModel.headers,
 			itemsList:[
 				{
 					id:1,
@@ -188,13 +159,7 @@
 			],
 			items: [],
 			editedIndex: -1,
-			editedItem: {
-				itemId:0,
-				name: '',
-				qty: 0,
-				rate: 0,
-				hsn:500
-			},
+			editedItem: ItemModel,
 			defaultItem: {
 				itemId:0,
 				name: '',
@@ -268,7 +233,7 @@
 			close() {
 				this.dialog = false
 				setTimeout(() => {
-					this.editedItem = Object.assign({}, this.defaultItem)
+					this.editedItem = Object.assign({}, ItemModel)
 					this.editedIndex = -1
 				}, 300)
 			},
@@ -276,15 +241,24 @@
 			save() {
 				this.editedItem.total=this.total
 				
+				var item={
+					itemId:this.editedItem.itemId,
+					name:this.editedItem.name,
+					qty:this.editedItem.qty,
+					rate:this.editedItem.rate,
+					total:this.editedItem.total,
+					hsn:this.editedItem.hsn
+				}
 				if (this.editedIndex > -1) {
-					Object.assign(this.items[this.editedIndex], this.editedItem)
+					Object.assign(this.items[this.editedIndex], item)
 				} else {
 					console.log(this.editedItem.total+" "+this.total)
-					this.items.push(this.editedItem)
+					this.items.push(item)
 					console.log(JSON.stringify(this.editedItem))
 				}
 				this.billTotal.totalAmt=this.billTotalAmt 
-				this.editedItem=this.defaultItem
+				this.editedItem.rate=null
+				this.editedItem.qty=null
 				this.close()
       },
       addItem(){
