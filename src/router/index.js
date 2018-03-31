@@ -4,6 +4,7 @@ import Main from '@/components/Main'
 import Login from '@/components/Login'
 import Dashboard from '@/components/Dashboard'
 import Users from '@/components/Users'
+import Purchase from '@/components/NewPurchase'
 Vue.use(Router)
 
 export default new Router({
@@ -27,7 +28,13 @@ export default new Router({
       path:'/users',
       name:'Users',
       component:Users
+    },
+    {
+      path:'/purchase',
+      name:'Purchase',
+      component: Purchase
     }
+
   ],
   mode:'history'
 })

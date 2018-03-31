@@ -23,13 +23,11 @@
         ref="menu"
         lazy
         :close-on-content-click="false"
-        v-model="menu"
         transition="scale-transition"
         offset-y
         full-width
         :nudge-right="40"
         min-width="290px"
-        :return-value.sync="date"
       >
         <v-text-field
           slot="activator"
@@ -132,7 +130,7 @@
             {text:'Email',value:'email', sortable: false},
             {text:'Contact Number',value:'contact', sortable:false},
             {text:'Date Of Birth',value:'dob', sortable: false},
-            {text:'Date Created',value:'date_created', sortable:false}
+            {text:'Date Created',value:'date_created',align:'left', sortable:false}
 
         ],
       items: [],

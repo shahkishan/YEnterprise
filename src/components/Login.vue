@@ -61,21 +61,21 @@
     methods:{
       
       onLogin(){
-        if(this.email=='admin@admin.com' && this.password=='admin123'){
-          console.log('here')
-          this.$store.dispatch('loginSuccess',this.year)
-          this.$router.push('dashboard');
-        } else {
-         // alert("here")
-          this.alert=true;
-        }
-          console.log(this.$store.getters.isLoggedIn);
-          console.log(this.year);
-        // if(this.$store.getters.isLoggedIn)
+        // if(this.email=='admin@admin.com' && this.password=='admin123'){
+        //   console.log('here')
+        //   this.$store.dispatch('loginSuccess',this.year)
+        //   this.$router.push('dashboard');
+        // } else {
+        //  // alert("here")
+        //   this.alert=true;
+        // }
+        //   console.log(this.$store.getters.isLoggedIn);
+        //   console.log(this.year);
+        // // if(this.$store.getters.isLoggedIn)
         //   this.$router.push('dashboard');
         // this.$user.login();
 
-        this.$http.post('https://yenterprise-backend.herokuapp.com/login',{
+        this.$http.post('http://192.168.43.58:3000/login',{
           username: this.email,
           password: this.password,
           year:this.year
