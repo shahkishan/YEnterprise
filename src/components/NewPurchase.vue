@@ -6,7 +6,7 @@
 			</v-flex>
 			<v-flex xs11 sm2>
 				<v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition" offset-y full-width
-				:nudge-right="40" min-width="290px" :return-value.sync="date">
+					:nudge-right="40" min-width="290px" :return-value.sync="date">
 					<v-text-field slot="activator" label="Date" v-model="date" prepend-icon="event" readonly />
 					<v-date-picker v-model="date" no-title scrollable>
 						<v-spacer></v-spacer>
@@ -36,15 +36,16 @@
 				<v-select :items="itemsList" :filter="customFilter" v-model="editedItem" item-text="name" label="Item" autocomplete></v-select>
 			</v-flex>
 			<v-flex xs11 sm2>
-				<v-text-field label="Quantity" name="qty" id="qty" v-model.number="editedItem.qty" />
+				<v-text-field label="Quantity" name="qty" id="qty" mask="#########" v-model.number="editedItem.qty" />
 			</v-flex>
 			<v-flex xs11 sm2>
-				<v-text-field label="Rate" name="rate" id="rate" v-model.number="editedItem.rate" />
+				<v-text-field label="Rate" name="rate" id="rate" mask="#########" v-model.number="editedItem.rate" />
 			</v-flex>
 			<v-flex xs11 sm2>
-				<v-btn medium color="primary" v-on:click="save">Add</v-btn>
+				<v-btn medium color="primary" v-on:click="addItem">Add</v-btn>
 			</v-flex>
 		</v-layout>
+
 		<v-dialog v-model="dialog" max-width="500px">
 			<v-card>
 				<v-card-title>
@@ -54,13 +55,13 @@
 					<v-container grid-list-md>
 						<v-layout wrap>
 							<v-flex xs12 sm6 md4>
-								<v-text-field label="Item" v-model="editedItem.name"></v-text-field>
+								<v-select :items="itemsList" :filter="customFilter" v-model="editedItem" item-text="name" label="Item" autocomplete></v-select>
+							</v-flex>						
+							<v-flex xs12 sm6 md4>
+								<v-text-field label="Quantity" mask="#########" v-model.number="editedItem.qty"></v-text-field>
 							</v-flex>
 							<v-flex xs12 sm6 md4>
-								<v-text-field label="Rate" v-model="editedItem.rate"></v-text-field>
-							</v-flex>
-							<v-flex xs12 sm6 md4>
-								<v-text-field label="Quantity" v-model="editedItem.qty"></v-text-field>
+								<v-text-field label="Rate" mask="#########" v-model.number="editedItem.rate"></v-text-field>
 							</v-flex>
 							<v-flex xs12 sm6 md4>
 							</v-flex>
@@ -75,7 +76,8 @@
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
-		<v-data-table :headers="headers" :items="items" hide-actions class="elevation-1">
+		<v-flex xs12>
+		<v-data-table :headers="headers" :items="items" hide-actions class="elevation-1" mb2>
 			<template slot="items" slot-scope="props">
 				<td>{{ props.item.name }}</td>
 				<td class="text-xs-left">{{ props.item.qty }}</td>
@@ -93,9 +95,10 @@
 			</template>
 
 		</v-data-table>
-		
-		<v-layout align-content-end="true"  >
-			<v-flex xs12 sm6 md3 lg2 offset-lg10>
+		</v-flex>
+		<v-layout align-content-end="true" mt2>
+			
+			<v-flex xs12 sm6 md3 lg2 offset-lg10 mt2>
 			<v-card md6>
 				<v-layout row wrap>
 					<v-flex xs6 md6><v-card-text>Total: </v-card-text></v-flex> <v-flex xs6 md6><v-card-text>₹{{ billTotal.totalAmt }}</v-card-text></v-flex>
@@ -169,15 +172,18 @@
 			itemsList:[
 				{
 					id:1,
-					name: 'item 1'
+					name: 'item 1',
+					hsn: 500
 				},
 				{
 					id:2,
-					name:'item 2'
+					name:'item 2',
+					hsn: 100
 				}, 
 				{
 					id: 3,
-					name:'item 3'
+					name:'item 3',
+					hsn: 300
 				}
 			],
 			items: [],
@@ -197,7 +203,7 @@
 				hsn: 500
 			},
 			billTotal:{
-				totalAmt:0,
+				totalAmt:this.b,
 				cGST:0,
 				iGST:0,
 				sGST:0,
@@ -269,18 +275,22 @@
 
 			save() {
 				this.editedItem.total=this.total
+				
 				if (this.editedIndex > -1) {
 					Object.assign(this.items[this.editedIndex], this.editedItem)
 				} else {
-					console.log(this.editItem.total+" "+this.total)
+					console.log(this.editedItem.total+" "+this.total)
 					this.items.push(this.editedItem)
 					console.log(JSON.stringify(this.editedItem))
 				}
+				this.billTotal.totalAmt=this.billTotalAmt 
+				this.editedItem=this.defaultItem
 				this.close()
       },
       addItem(){
-        //this.editedItem.total=this.editedItem.rate*this.editedItem.qty
-        this.editedItem.total=this.total
+		this.editedItem.total=this.total
+		this.editedItem.total=this.total
+		this.billTotal.totalAmt=this.billTotalAmt 
         this.items.push(this.editedItem)
 	  },
 	  saveTransaction(){
@@ -292,7 +302,17 @@
     computed:{
       total(){
         return this.editedItem.rate*this.editedItem.qty
-      }
+	  },
+	  billTotalAmt(){
+		var items = this.editedItem ;
+		var billTotal=0
+		this.items.forEach(function(item){
+			billTotal+=item.total
+		})
+		console.log(billTotal)  
+		return billTotal
+	  }
+
     }
 	}
 
