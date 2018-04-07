@@ -4,10 +4,12 @@ import Main from '@/components/Main'
 import Login from '@/components/Login'
 import Dashboard from '@/components/Dashboard'
 import Users from '@/components/Users'
-import Suppliers from '@/components/Suppliers'
+import Transport from '@/components/Transport'
+import Company from '@/components/Company'
 import Customers from '@/components/Customers'
-Vue.use(Router)
+import Suppliers from '@/components/Suppliers'
 
+Vue.use(Router)
 
 export default new Router({
 	routes: [
@@ -17,29 +19,41 @@ export default new Router({
 			component: Main
 		},
 		{
-			path: '/login',
+			path:'/login',
 			name: 'Login',
 			component: Login
 		},
 		{
-			path: '/dashboard',
-			name: 'Dashboard',
-			component: Dashboard
+			path:'/dashboard',
+			name:'Dashboard',
+			component:Dashboard
 		},
 		{
-			path: '/users',
-			name: 'Users',
-			component: Users
+			path:'/users',
+			name:'Users',
+			component:Users
 		},
 		{
-			path: '/suppliers',
-			name: 'Suppliers',
-			component: Suppliers
+			path:'/transport',
+			name:'Transport',
+			component:Transport
+		},
+
+		{
+			path:'/company',
+			name:'Company',
+			component:Company
 		},
 		{
 			path:'/customers',
-			name: 'Customers',
+			name:'Customers',
 			component: Customers
+		},
+		{
+			path:'/suppliers',
+			name:'Suppliers',
+			component: Suppliers
 		}
-	]
+	],
+	mode:'history'
 })
