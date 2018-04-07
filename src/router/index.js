@@ -8,30 +8,38 @@ import Transport from '@/components/Transport'
 import Company from '@/components/Company'
 import Customers from '@/components/Customers'
 import Suppliers from '@/components/Suppliers'
+import Purchase from '@/components/NewPurchase'
+import Items from '@/components/Item'
+Vue.use(Router)
 
 Vue.use(Router)
 
 export default new Router({
-	routes: [
-		{
-			path: '/',
-			name: 'Main',
-			component: Main
-		},
-		{
-			path:'/login',
-			name: 'Login',
-			component: Login
-		},
-		{
-			path:'/dashboard',
-			name:'Dashboard',
-			component:Dashboard
-		},
-		{
-			path:'/users',
-			name:'Users',
-			component:Users
+  routes: [
+    {
+      path: '/',
+      name: 'Main',
+      component: Main
+    },
+    {
+      path:'/login',
+      name: 'Login',
+      component: Login
+    },
+    {
+      path:'/dashboard',
+      name:'Dashboard',
+      component:Dashboard
+    },
+    {
+      path:'/users',
+      name:'Users',
+      component:Users
+    },
+    {
+      path:'/purchase',
+      name:'Purchase',
+      component: Purchase
 		},
 		{
 			path:'/transport',
@@ -53,7 +61,14 @@ export default new Router({
 			path:'/suppliers',
 			name:'Suppliers',
 			component: Suppliers
-		}
-	],
-	mode:'history'
+    },
+    {
+      path:'/items',
+      name:'Items',
+      component:Items
+    }
+
+  ],
+  mode:'history'
 })
+	

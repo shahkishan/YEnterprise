@@ -7,11 +7,34 @@ import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import Vuex from 'vuex'
 import {store} from './store'
-window.axios = require('axios');
+var VueModels = require('vue-model')
+  window.axios = require('axios');
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 Vue.prototype.$http = window.axios
 Vue.use(Vuetify)
 Vue.use(Vuex)
+// Vue.use(VueModel);
+
+// Vue.models.register('user',{
+//   attributes: [
+//     'id',
+//     'name',
+//     'email',
+//     'contact'
+// ],
+
+// http:{
+//     baseRoute: 'url',
+//     actions:{
+//         destroy:false
+//     }
+// },
+// methods:{
+//     login(){
+//         alert('login()');
+//     }
+// }
+// })
 
 Vue.config.productionTip = false
 
