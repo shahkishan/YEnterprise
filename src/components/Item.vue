@@ -115,12 +115,15 @@
 				<v-card-text>
 					<v-container grid-list-md>
 						<v-layout wrap>
+
+							<v-flex xs12>
+								<v-select label="Item Category" v-model="itemCatg" :items="loadAllCategories" item-value="item_master_id" item-text="item_master_name"></v-select>
+							</v-flex>
+
 							<v-flex xs12>
 								<v-text-field label="Name" v-model="item.item_detail_name"></v-text-field>
 							</v-flex>
-							<v-flex xs12>
-								<v-select label="Item Category" v-model="itemCatg" :items="loadAllCategories" item-text="item_master_name"></v-select>
-							</v-flex>
+							
 							<v-flex xs12>
 								<v-text-field label="Description" v-model="item.description"></v-text-field>
 							</v-flex>
@@ -207,12 +210,12 @@ export default {
 				this.isCatgEdit=true
 				this.category=item
 			} else {
+				this.clear(false)
 				this.isItemEdit=true
 				this.item=item
-				this.itemCatg=Object.assign(CategoryModel)
-				this.itemCatg.item_master_id=this.item.item_master_id
-				this.itemCatg.item_master_name=this.item.item_master_name
-				this.itemCatg.hsn_code=this.item.hsn_code
+				this.itemCatg=''
+				this.itemCatg=Object.assign({}, CategoryModel)
+				this.itemCatg.item_master_id=item.item_master_id
 				console.log(JSON.stringify(this.itemCatg))
 			}
 		},
