@@ -66,6 +66,13 @@
 
 <script>
 export default {
+  created(){
+    this.$store.dispatch('getUsers')
+    this.$store.dispatch('getSuppliers')
+    this.$store.dispatch('getCustomers')
+    this.$store.dispatch('loadItemCategories')
+    this.$store.dispatch('loadItems')
+  },
   data () {
     return {
       clipped: false,

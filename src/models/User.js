@@ -1,7 +1,8 @@
 export default{
-    user_id:"",
-    username:"",
-    email:"",
-    password:"",
-    contactno:""
+    user_id:0,
+    username:'',
+    password:'',
+    fName:'',
+    lName:'',
+    user_type:''
 }

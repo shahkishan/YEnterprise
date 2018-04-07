@@ -5,7 +5,11 @@ import Login from '@/components/Login'
 import Dashboard from '@/components/Dashboard'
 import Users from '@/components/Users'
 import Purchase from '@/components/NewPurchase'
+import Suppliers from '@/components/Suppliers'
+import Customers from '@/components/Customers'
+import Items from '@/components/Item'
 Vue.use(Router)
+
 
 export default new Router({
   routes: [
@@ -33,8 +37,24 @@ export default new Router({
       path:'/purchase',
       name:'Purchase',
       component: Purchase
+		},
+		{
+			path: '/suppliers',
+			name: 'Suppliers',
+			component: Suppliers
+		},
+		{
+			path:'/customers',
+			name: 'Customers',
+			component: Customers
+    },
+    {
+      path:'/items',
+      name:'Items',
+      component:Items
     }
 
   ],
   mode:'history'
 })
+	

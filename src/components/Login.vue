@@ -11,11 +11,11 @@
 							<form @submit.prevent="onLogin">
 								<v-layout row>
 									<v-flex xs12>
-										<v-text-field label="Enter your e-mail" v-model="email" :rules="[rules.required, rules.email]"></v-text-field>
+										<v-text-field label="Enter your e-mail" v-model="email" :rules="[rules.required]"></v-text-field>
 
 										<v-text-field name="input-10-1" label="Enter your password" hint="At least 8 characters" v-model="password" min="8" :append-icon="e1 ? 'visibility' : 'visibility_off'"
 										:append-icon-cb="() => (e1 = !e1)" :type="e1 ? 'password' : 'text'" counter></v-text-field>
-										<v-select :items="items" v-model="year" label="Select Year" single-line bottom></v-select>
+										<!-- <v-select :items="items" v-model="year" label="Select Year" single-line bottom></v-select> -->
 										<v-btn large color="primary" type="submit">Login</v-btn>
 									</v-flex>
 								</v-layout>
@@ -36,6 +36,8 @@
 
 
 <script>
+import Constants from '../Utility/constants'
+const BASE_URL=Constants.BASE_URL
   export default {
     data () {
       return {
@@ -74,15 +76,32 @@
         // // if(this.$store.getters.isLoggedIn)
         //   this.$router.push('dashboard');
         // this.$user.login();
-
-        this.$http.post('http://192.168.43.58:3000/login',{
+      var app=this
+      var alert=this.alert
+        this.$http.post(BASE_URL+'login',{
           username: this.email,
           password: this.password,
           year:this.year
+        
         }).then(function(response){
+
+          console.log(response.statusText)
+          if(response.status==200){
+            app.$store.dispatch('loginSuccess',true)
+            console.log(app.$store.getters.isLoggedIn)
+            app.$router.push('dashboard')
+            // this.$store.loginS
+            
+          } else{
+            alert=true
+          }
+
+          console.log("response")
           console.log(response)
         }).catch(function(error){
+          console.log("error")
           console.log(error)
+          app.alert=true
         })
       }
     },

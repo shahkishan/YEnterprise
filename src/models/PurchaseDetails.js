@@ -1,10 +1,12 @@
-import Supplier from './Supplier'
+// import Supplier from './Supplier'
 export default{
+
     date:null,
-    invoiceNo:'',
-    supplier:Object.assign({},Supplier),
+    invoice_no:'',
+    ba_id:0,
+    company_id:0,
     items: [],  
-    totalAmt:0,
+    amount:0,
     cGST:0,
     iGST:0,
     sGST:0,

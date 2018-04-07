@@ -108,8 +108,10 @@
   export default {
 	  created(){
           this.$store.dispatch('loginPage',false)
-
 		  console.log("login page: "+this.$store.getters.isLoginPage)
+		  if(!this.$store.getters.isLoggedIn){
+			  this.$router.push('login')
+		  }
 	  }
   
   }
@@ -124,4 +126,4 @@
 		border-radius: 25px;
 		border: 2px solid;
 	}
-</style>
+</style>	

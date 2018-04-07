@@ -5,7 +5,7 @@
 			<v-flex md8>
 		<v-data-table
 				:headers="headers"
-				:items="loadCustomers"
+				:items="loadSuppliers"
 				hide-actions
 				class="elevation-1"
 		>
@@ -77,7 +77,7 @@
 </template>
 
 <script>
-	import CustomerModel from '../models/BusinessAssociate'
+	import SupplierModel from '../models/BusinessAssociate'
 	export default {
 		data: () => ({
 			dialog: false,
@@ -88,15 +88,15 @@
 				{text:'GST NO',value:'gst', sortable: false}
 			],
 			isEdit:false,
-			editedItem: CustomerModel
+			editedItem: SupplierModel
 		}),
 
 		computed: {
 			formTitle () {
-				return this.isEdit ? 'Edit Customer' : 'New Customer'
+				return this.isEdit ? 'Edit Supplier' : 'New Supplier'
 			},
-			loadCustomers(){
-				return this.$store.getters.getCustomers
+			loadSuppliers(){
+				return this.$store.getters.getSuppliers
 			}
 		},
 
@@ -114,29 +114,31 @@
 			},
 
 			deleteItem (item) {
-				confirm('Are you sure you want to delete this item?') && this.$store.dispatch('deleteCustomer',item)
+				confirm('Are you sure you want to delete this item?') && this.$store.dispatch('deleteSupplier',item)
 			},
 
 			close () {
+				this.dialog = false
 				setTimeout(() => {
 					this.editedItem = Object.assign({}, this.defaultItem)
+					this.editedIndex = -1
 				}, 300)
 			},
 
 			save () {
-
+				var temp = this
 				if (this.isEdit) {
-					this.$store.dispatch('updateCustomer',this.editedItem)
+					this.$store.dispatch('updateSupplier',this.editedItem)
 					this.isEdit=false
 				} else {
-					this.$store.dispatch('addNewCustomer',this.editedItem)
+					this.$store.dispatch('addNewSupplier',this.editedItem)
 				}
 				this.close()
 			},
 
-			infoDisplay(customer)
+			infoDisplay(supplier)
 			{
-			  console.log(customer.name + " " + customer.GSTNo + " " + customer.email);
+			  console.log(supplier.name + " " + supplier.GSTNo + " " + supplier.email);
 
 			}
 		}

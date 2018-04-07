@@ -1,12 +1,18 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import user from './User/index'
+import supplier from './Supplier/index'
+import customer from './Customer/index'
+import items from './Item/index'
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({
-    // modules:{
-    //     user: user
-    // },
+    modules:{
+        user: user,
+        supplier,
+        customer,
+        items
+    },
     state:{
         count:0,
         isLoggedIn: false,

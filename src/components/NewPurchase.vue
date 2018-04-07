@@ -24,8 +24,8 @@
 		</v-layout>
 		<v-flex xs11 sm2 ml5>
 			<v-select
-				:items="suppliers"
-				v-model="purchaseDetails.supplier"
+				:items="loadSuppliers"
+				v-model="supplier"
 				item-text="name"
 				label="Supplier"
 				autocomplete
@@ -59,13 +59,13 @@
 					<v-container grid-list-md>
 						<v-layout wrap>
 							<v-flex xs12 sm6 md4>
-								<v-select :items="itemsList" :filter="customFilter" v-model="editedItem" item-text="name" label="Item" required :rules="[rules.item]" autocomplete></v-select>
+								<v-select :items="itemsList" v-model="editedItem" item-text="name" label="Item" required :rules="[rules.item]" autocomplete></v-select>
 							</v-flex>						
 							<v-flex xs12 sm6 md4>
-								<v-text-field label="Quantity" mask="#########" v-model.number="editedItem.qty" required :rules="[() => editedItem.qty.length>0 || 'This field is required']"></v-text-field>
+								<v-text-field label="Quantity" mask="#########" v-model.number="editedItem.qty" required :rules="[rules.required]"></v-text-field>
 							</v-flex>
 							<v-flex xs12 sm6 md4>
-								<v-text-field label="Rate" mask="#########" v-model.number="editedItem.rate" required :rules="[() => editedItem.rate > 0 || 'This field is required']"></v-text-field>
+								<v-text-field label="Rate" mask="#########" v-model.number="editedItem.rate" required :rules="[rules.required]"></v-text-field>
 							</v-flex>
 							<v-flex xs12 sm6 md4>
 							</v-flex>
@@ -81,7 +81,7 @@
 			</v-card>
 		</v-dialog>
 		<v-flex xs12>
-		<v-data-table :headers="headers" :items="purchaseDetails.items" hide-actions class="elevation-1" mb2>
+		<v-data-table :headers="headers" :items="items" hide-actions class="elevation-1" mb2>
 			<template slot="items" slot-scope="props">
 				<td>{{ props.item.name }}</td>
 				<td class="text-xs-left">{{ props.item.qty }}</td>
@@ -226,7 +226,7 @@
 			items: [],
 			editedIndex: -1,
 			editedItem: ItemModel,
-			purchaseDetails:Object.assign({},PurchaseDetailsModel),
+			purchaseDetails:PurchaseDetailsModel,
 			billTotal:{
 				totalAmt:0,
 				cGST:0,
@@ -254,18 +254,10 @@
 			],
 			rules: {
           		required: (value) => !!value || 'Required.',
-        		qty: (value) => {
-            		return value>0 || 'Quantity cannot be zero.'
-        		},
-				rate:(value)=>{
-					return value>0 || 'Rate cannot be zero.'
-				},
-				supplier:(value)=>{
-					return !!value.name||"Required."
-				},
-				item:(value)=>{
-					return !!value.name||"Required."
-				}
+        		// qty: (value) =>  !!value || 'Quantity cannot be zero.',
+				// rate:(value)=>  !!value || 'Rate cannot be zero.',
+				supplier: (value)=> !!value.name||"Required.",
+				item: (value)=> !!value.name||"Required."
         	}
 		}),
 
@@ -321,30 +313,30 @@
 						hsn:this.editedItem.hsn
 					}
 					if (this.editedIndex > -1) {
-						Object.assign(this.purchaseDetails.items[this.editedIndex], item)
+						Object.assign(this.items[this.editedIndex], item)
 					} else {
 						console.log(this.editedItem.total+" "+this.total)
-						this.purchaseDetails.items.push(item)
-						console.log(JSON.stringify(this.editedItem))
+						this.items.push(item)
+						// console.log(this.supplier.id)
 					}
 					this.purchaseDetails.totalAmt=this.billTotalAmt 
-					this.editedItem.rate=null
-					this.editedItem.qty=null
+					this.editedItem.rate=0
+					this.editedItem.qty=0
 					this.close()
 				}
       		},
 			addItem(){
 				this.editedItem.total=this.total
-				this.editedItem.total=this.total
 				this.billTotal.totalAmt=this.billTotalAmt 
-				this.items.push(this.editedItem)
+				this.purchaseDetails.items.push(this.editedItem)
 			},
 			saveTransaction(){
-				console.log(this.editedItem.name)
-				this.purchaseDetails.items=this.items
 				this.purchaseDetails=this.billTotal
-				console.log("{\"date\":\""+this.date+"\",\"invoice_no\"\":"+this.invoiceNo+"\",\"supplier_id\":"+123+",\"items\":"+JSON.stringify(this.items)+",\"isGst\":"+true+"}")
-				//   console.log(json)
+				// console.log("{\"date\":\""+this.purchaseDetails.date+"\",\"invoice_no\"\":"+this.purchaseDetails.invoiceNo+"\",\"supplier_id\":"+this.purchaseDetails.supplier.id+",\"items\":"+JSON.stringify(this.purchaseDetails.items)+",\"isGst\":"+isGst.toString()+"}")
+				//  console.log("purchase details: ")
+				this.purchaseDetails.supplier=this.supplier
+				this.purchaseDetails.items=this.items	
+				console.log(JSON.stringify(this.purchaseDetails))		
 			},
 			extraDetails(){
 				this.extraDetailsDialog=true
@@ -376,6 +368,9 @@
 			},
 			netTotal(){
 				this.purchaseDetails.netTotal=this.purchaseDetails.billTotal+this.purchaseDetails.cGST+this.purchaseDetails+iGST+this.purchaseDetails.sGST+this.purchaseDetails.transport-(this.purchaseDetails.totalAmt*this.purchaseDetails.discount/100)	
+			},
+			loadSuppliers(){
+				return this.$store.getters.getSuppliers
 			}
 
 
