@@ -49,7 +49,7 @@ export default{
             const index=state.itemCatg.indexOf(item)
             state.itemCatg.splice(index,1,payload)
           },
-        deleteItemCategory:(state,payload)=>{
+        deleteItemCategory:(state,payload)=>{   
             const index=state.itemCatg.indexOf(payload)
             state.itemCatg.splice(index,1)
         },
