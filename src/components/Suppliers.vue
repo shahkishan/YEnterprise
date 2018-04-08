@@ -1,5 +1,16 @@
 <template>
 	<div>
+		<v-dialog v-model="deleteDialog" max-width="290" @keydown.esc="dialog=false">
+			<v-card>
+				<v-card-title class="headline">Delete?</v-card-title>
+				<v-card-text>Are you sure you want to delete?</v-card-text>
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn color="green darken-1" flat="flat" @click.native="deleteItem">Yes</v-btn>
+					<v-btn color="green darken-1" flat="flat" @click.native="deleteDialog = false">No</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
 		<v-container>
 			<v-layout row wrap>
 			<v-flex md8>
@@ -19,7 +30,7 @@
 					<v-btn icon class="mx-0" @click="editItem(props.item)">
 						<v-icon color="teal">edit</v-icon>
 					</v-btn>
-					<v-btn icon class="mx-0" @click="deleteItem(props.item)">
+					<v-btn icon class="mx-0" @click="deleteItemDialog(props.item)">
 						<v-icon color="pink">delete</v-icon>
 					</v-btn>
 				</td>
@@ -27,6 +38,46 @@
 			<template slot="no-data">
 			</template>
 		</v-data-table>
+			<v-dialog
+        v-model="detailDialog"
+        fullscreen
+		@keydown.esc="detailDialog=false"
+        transition="dialog-bottom-transition"
+        :overlay="false"
+        scrollable
+      >
+	  <v-card tile>
+            <v-toolbar card dark>
+              <v-btn icon @click.native="detailDialog = false" dark>
+                <v-icon>close</v-icon>
+              </v-btn>
+              <v-toolbar-title>Deatils</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-toolbar-items>
+                <v-btn dark flat @click.native="detailDialog = false">Close</v-btn>
+              </v-toolbar-items>
+              <v-menu bottom right offset-y>
+                <!-- <v-btn slot="activator" dark icon>
+                </v-btn> -->
+              </v-menu>
+            </v-toolbar>
+			<div>				
+				<v-subheader><h3>Name:</h3></v-subheader>
+           <v-subheader>{{dialogItem.name}}</v-subheader>
+		   <v-divider></v-divider>
+		   <v-subheader><h3>Email:</h3></v-subheader>
+           <v-subheader>{{dialogItem.email}} </v-subheader>
+           <v-divider></v-divider>
+		   <v-subheader><h3>Contact no:</h3></v-subheader>
+		   <v-subheader>{{dialogItem.contact}}</v-subheader>		
+		   <v-divider></v-divider>
+		   <v-subheader><h3>GST</h3></v-subheader>
+		    <v-subheader>{{dialogItem.gst}}</v-subheader>
+  </div>
+            <div style="flex: 1 1 auto;"/>
+          </v-card>
+	  </v-dialog>
+		
 		<v-spacer></v-spacer>
 			</v-flex>
 			<v-flex md4>
@@ -74,6 +125,7 @@
 			</v-layout>
 		</v-container>
 	</div>
+	
 </template>
 
 <script>
@@ -81,6 +133,13 @@
 	export default {
 		data: () => ({
 			dialog: false,
+			deleteDialog:false,
+			deleteIndex:null,
+			detailDialog:false,
+			emailRules: [
+      v => !!v || 'E-mail is required',
+      v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
+    ],
 			headers:[
 				{text:'Name',value:'name', sortable: false},
 				{text:'Email',value:'email', sortable: false},
@@ -138,7 +197,18 @@
 
 			infoDisplay(supplier)
 			{
-			  console.log(supplier.name + " " + supplier.GSTNo + " " + supplier.email);
+				
+				this.detailDialog = true;
+				this.dialogItem=supplier;
+			  console.log(supplier.name + " " + supplier.gst + " " + supplier.email);
+
+			},
+				dialogItem:{},
+
+			deleteItem()
+			{
+				this.deleteDialog=false
+				this.items.splice(this.deleteIndex,1)
 
 			}
 		}

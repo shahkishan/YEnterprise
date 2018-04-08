@@ -1,5 +1,49 @@
 <template>
 	<div>
+	
+		<v-dialog max-width="500px" v-model="dialog" @keydown.esc="dialog=false">
+			<v-btn color="primary" dark slot="activator" class="mb-2">New Customer</v-btn>
+			<v-card>
+				<v-card-title>
+					<span class="headline">{{ formTitle }}</span>
+				</v-card-title>
+				<v-card-text>
+					<v-container grid-list-md>
+						<v-layout wrap>
+							<v-flex xs12 sm6 md4>
+								<v-text-field label="Name" v-model="editedItem.name"  :counter="10"  required></v-text-field>
+							</v-flex>
+							<v-flex xs12 sm6 md4>
+								<v-text-field label="Email" v-model="editedItem.email" :rules="emailRules" required></v-text-field>
+							</v-flex>
+							<v-flex xs12 sm6 md4>
+								<v-text-field label="Contact Number" v-model="editedItem.contact"></v-text-field>
+							</v-flex>
+							<v-flex xs12 sm6 md4>
+								<v-text-field label="GST NO" v-model="editedItem.gst"></v-text-field>
+							</v-flex>
+						</v-layout>
+					</v-container>
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn> 
+					<v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
+		<v-dialog v-model="deleteDialog" max-width="290" @keydown.esc="dialog=false">
+			<v-card>
+				<v-card-title class="headline">Delete?</v-card-title>
+				<v-card-text>Are you sure you want to delete?</v-card-text>
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn color="green darken-1" flat="flat" @click.native="deleteItem">Yes</v-btn>
+					<v-btn color="green darken-1" flat="flat" @click.native="deleteDialog = false">No</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
 		<v-container>
 			<v-layout row wrap>
 			<v-flex md8>
@@ -19,7 +63,8 @@
 					<v-btn icon class="mx-0" @click="editItem(props.item)">
 						<v-icon color="teal">edit</v-icon>
 					</v-btn>
-					<v-btn icon class="mx-0" @click="deleteItem(props.item)">
+					<v-btn icon class="mx-0" @click="deleteItemDialog(props.item)">
+						<!--<v-dialog v-model="dialog" @keydown.esc="dialog = false"></v-dialog>-->
 						<v-icon color="pink">delete</v-icon>
 					</v-btn>
 				</td>
@@ -27,6 +72,53 @@
 			<template slot="no-data">
 			</template>
 		</v-data-table>
+		
+		      
+		<v-dialog
+        v-model="detailsDialog"
+        fullscreen
+		@keydown.esc="detailsDialog=false"
+        transition="dialog-bottom-transition"
+        :overlay="false"
+        scrollable
+      >
+	  <v-card tile>
+            <v-toolbar card dark>
+              <v-btn icon @click.native="detailsDialog = false" dark>
+                <v-icon>close</v-icon>
+              </v-btn>
+              <v-toolbar-title>Deatils</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-toolbar-items>
+                <v-btn dark flat @click.native="detailsDialog = false">Close</v-btn>
+              </v-toolbar-items>
+              <v-menu bottom right offset-y>
+                <v-btn slot="activator" dark icon>
+                </v-btn>
+              </v-menu>
+            </v-toolbar>
+			<div>				
+				<v-subheader><h3>Name:</h3></v-subheader>
+           <v-subheader>{{dialogItem.name}}</v-subheader>
+		   <v-divider></v-divider>
+		   <v-subheader><h3>Email:</h3></v-subheader>
+           <v-subheader>{{dialogItem.email}} </v-subheader>
+           <v-divider></v-divider>
+		   <v-subheader><h3>Contact no:</h3></v-subheader>
+		   <v-subheader>{{dialogItem.contact}}</v-subheader>		
+		   <v-divider></v-divider>
+		   <v-subheader><h3>GST</h3></v-subheader>
+		    <v-subheader>{{dialogItem.gst}}</v-subheader>
+  </div>
+            <div style="flex: 1 1 auto;"/>
+          </v-card>
+	  </v-dialog>
+		 
+
+           <!-- <v-card-actions>
+              <v-btn color="primary" flat @click.stop="dialog3=false">Close</v-btn>
+            </v-card-actions>-->
+        
 		<v-spacer></v-spacer>
 			</v-flex>
 			<v-flex md4>
@@ -79,8 +171,21 @@
 <script>
 	import CustomerModel from '../models/BusinessAssociate'
 	export default {
+
 		data: () => ({
 			dialog: false,
+			deleteDialog:false,
+			detailsDialog:false,
+			deleteIndex:null,
+      notifications: false,
+      sound: true,
+	  widgets: false,
+	  emailRules: [
+      v => !!v || 'E-mail is required',
+      v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
+	],
+ 
+
 			headers:[
 				{text:'Name',value:'name', sortable: false},
 				{text:'Email',value:'email', sortable: false},
@@ -90,7 +195,7 @@
 			isEdit:false,
 			editedItem: CustomerModel
 		}),
-
+  
 		computed: {
 			formTitle () {
 				return this.isEdit ? 'Edit Customer' : 'New Customer'
@@ -113,9 +218,13 @@
 				// this.dialog = true
 			},
 
-			deleteItem (item) {
-				confirm('Are you sure you want to delete this item?') && this.$store.dispatch('deleteCustomer',item)
+			deleteItemDialog (item) {
+				this.deleteIndex = this.items.indexOf(item)
+				this.deleteDialog=true
 			},
+			/*deleteItem (item) {
+				confirm('Are you sure you want to delete this item?') && this.$store.dispatch('deleteCustomer',item)
+			},*/
 
 			close () {
 				setTimeout(() => {
@@ -136,7 +245,16 @@
 
 			infoDisplay(customer)
 			{
-			  console.log(customer.name + " " + customer.GSTNo + " " + customer.email);
+				this.detailsDialog = true;
+				this.dialogItem=customer;
+				
+				console.log(this.dialogItem.name + " " +this.dialogItem.gst + " " + this.dialogItem.email);
+
+			},
+			deleteItem()
+			{
+				this.deleteDialog=false
+				this.items.splice(this.deleteIndex,1)
 
 			}
 		}
