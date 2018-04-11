@@ -19,6 +19,8 @@ export default{
         addNewCustomer:(state,payload)=>{
             state.customers.push(payload)
         },
+
+
         getCustomers:(state,payload)=>{
             state.customers=payload
         },
