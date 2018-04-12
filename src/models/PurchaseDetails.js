@@ -4,7 +4,7 @@ export default{
     date:null,
     invoice_no:'',
     ba_id:0,
-    company_id:0,
+    company_id:1,
     items: [],  
     amount:0,
     taxes:0,

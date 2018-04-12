@@ -32,11 +32,12 @@ export default{
         addPurchase({commit,getters},payload){
             axios.post(URL,payload)
                 .then(res=>{
-                    console.log(res.data)
+                    console.log(payload)
                     dispatch('loadPurchases')
                 })
                 .catch(err=>{
                     console.log(err)
+                    console.log(payload)
                 })
         }
     },

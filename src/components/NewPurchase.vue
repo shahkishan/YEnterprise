@@ -26,7 +26,8 @@
 		<v-flex xs11 sm2 ml5>
 			<v-select
 				:items="loadSuppliers"
-				v-model="supplier"
+				v-model="purchaseDetails.ba_id"
+				item-value="ba_id"
 				item-text="name"
 				label="Supplier"
 				autocomplete
@@ -43,7 +44,7 @@
 				<v-select :items="LoadItems" v-model="selectedItemId" item-value="item_detail_id" item-text="item_detail_name" label="Item" autocomplete required :rules="[rules.itemSelect]"></v-select>
 			</v-flex>
 			<v-flex xs11 sm2>
-				<v-text-field label="Quantity" name="qty" id="qty" mask="#########" v-model.number="editedItem.qty" required :rules="[rules.required]" />
+				<v-text-field label="Quantity" name="quantity" id="quantity" mask="#########" v-model.number="editedItem.quantity" required :rules="[rules.required]" />
 			</v-flex>
 			<v-flex xs11 sm2>
 				<v-text-field label="Rate" name="rate" id="rate" mask="#########" v-model.number="editedItem.rate" required :rules="[rules.required]" />
@@ -69,7 +70,7 @@
 								<v-select :items="LoadItems" v-model="selectedItemId" item-value="item_detail_id" item-text="item_detail_name" label="Item" autocomplete required :rules="[rules.itemSelect]"></v-select>
 							</v-flex>					
 							<v-flex xs12 sm6 md4>
-								<v-text-field label="Quantity" mask="#########" v-model.number="editedItem.qty" required :rules="[rules.required]"></v-text-field>
+								<v-text-field label="Quantity" mask="#########" v-model.number="editedItem.quantity" required :rules="[rules.required]"></v-text-field>
 							</v-flex>
 							<v-flex xs12 sm6 md4>
 								<v-text-field label="Rate" mask="#########" v-model.number="editedItem.rate" required :rules="[rules.required]"></v-text-field>
@@ -93,7 +94,7 @@
 				<td>{{ props.item.item_master_name }}</td>
 				<td>{{ props.item.item_detail_name }}</td>
 				<td class="text-xs-left">{{ props.item.hsn_code }}</td>
-				<td class="text-xs-left">{{ props.item.qty }}</td>
+				<td class="text-xs-left">{{ props.item.quantity }}</td>
 				<td class="text-xs-left">{{ props.item.rate }}</td>
 				<td class="text-xs-left">{{ props.item.total }}</td>
 				<td class="justify-center layout px-0">
@@ -120,7 +121,7 @@
 							<v-flex xs12 sm6>
 								<v-checkbox
 									label="Is Credit"
-									v-model="purchaseDetails.is_credit"
+									v-model="is_credit"
     							></v-checkbox>
 							</v-flex>	
 							<v-flex xs12 sm6 md4>
@@ -202,6 +203,7 @@
 			discount:'',
 			transport:'',
 			isGst:true,
+			is_credit:false,
 			totalGST:0,
 			transactionItemHeaders:Headers.transactionItems,
 			items: [],
@@ -225,7 +227,7 @@
 			},
 			rules: {
           		required: (value) => !!value || 'Required.',
-        		// qty: (value) =>  !!value || 'Quantity cannot be zero.',
+        		// quantity: (value) =>  !!value || 'Quantity cannot be zero.',
 				// rate:(value)=>  !!value || 'Rate cannot be zero.',
 				supplier: (value)=> !!value.name||"Required.",
 				item: (value)=> !!value.name||"Required.",
@@ -256,7 +258,7 @@
 				this.editedItem.item_name=item.item_master_name
 				this.editedItem.item_detail_id=item.item_detail_id
 				this.editedItem.rate=item.rate
-				this.editedItem.qty=item.qty
+				this.editedItem.quantity=item.quantity
 				this.selectedItemId=item.item_detail_id
 				this.selectedItemCategoryId=item.item_master_id
 				this.dialog = true
@@ -285,13 +287,13 @@
 					item_detail_id:this.selectedItemId,
 					item_detail_name:itemName,
 					item_master_name:this.ItemCategory.item_master_name,
-					qty:this.editedItem.qty,
+					quantity:this.editedItem.quantity,
 					rate:this.editedItem.rate,
 					total:this.total,
 					hsn_code:this.ItemCategory.hsn_code
 				}
 				console.log(JSON.stringify(item))
-				if(item.item_detail_name.length>0 && item.rate>0 && item.qty>0){
+				if(item.item_detail_name.length>0 && item.rate>0 && item.quantity>0){
 					
 					
 					
@@ -303,7 +305,6 @@
 						// console.log(this.supplier.id)
 					}
 					console.log(this.billTotalAmt)
-					this.purchaseDetails.totalAmt=this.billTotalAmt 
 					this.clear()
 					this.close()
 				}
@@ -319,31 +320,30 @@
 				// console.log("{\"date\":\""+this.purchaseDetails.date+"\",\"invoice_no\"\":"+this.purchaseDetails.invoiceNo+"\",\"supplier_id\":"+this.purchaseDetails.supplier.id+",\"items\":"+JSON.stringify(this.purchaseDetails.items)+",\"isGst\":"+isGst.toString()+"}")
 				//  console.log("purchase details: ")
 				this.purchaseDetails.ba_id=this.supplier.id
+				this.purchaseDetails.is_credit=this.IsCredit
 				// this.purchaseDetails.items=this.items	
 				console.log(JSON.stringify(this.purchaseDetails))	
 				
-				this.$store.dispatch('addPurchase',JSON.stringify(this.purchaseDetails))
+				this.$store.dispatch('addPurchase',this.purchaseDetails)
 			},
 			extraDetails(){
 				this.extraDetailsDialog=true
 			},
 			saveExtraDetails(){
-				this.purchaseDetails.discount=this.discount
-				this.purchaseDetails.transport=this.transport
 				this.extraDetailsDialog=false
 			},
 			clear(){
 				this.editedItem=Object.assign({},TransactionItemModel)
 				this.selectedItemId=0
 				this.editedItem.price=''
-				this.editedItem.qty='0'
+				this.editedItem.quantity='0'
 				this.selectedItemCategoryId=0
 			}
 
 		},
 		computed:{
 			total(){
-				return this.editedItem.rate*this.editedItem.qty
+				return this.editedItem.rate*this.editedItem.quantity
 			},
 			billTotalAmt(){
 				var billTotal=0
@@ -359,7 +359,7 @@
 			},
 			itemGST(){
 				if(this.isGst){
-					return this.editedItem.rate*this.editedItem.qty*5/100
+					return this.editedItem.rate*this.editedItem.quantity*5/100
 				}
 				else
 					return 0
@@ -402,6 +402,12 @@
 			},
 			IGST(){
 				return this.purchaseDetails.taxes
+			},
+			IsCredit(){
+				if(this.is_credit)
+					return 1
+				else 
+					return 0
 			}
 		}
 	}
