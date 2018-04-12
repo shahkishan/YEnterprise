@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog v-model="dialog" max-width="500px">
+    <v-dialog v-model="dialog" max-width="500px" @keydown.esc="dialog=false" >
       <v-card>
         <v-card-title>
           <span class="headline">{{ formTitle }}</span>
