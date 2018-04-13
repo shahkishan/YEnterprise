@@ -46,7 +46,12 @@ export default {
     this.$store.dispatch('getCustomers')
     this.$store.dispatch('loadItemCategories')
     this.$store.dispatch('loadItems')
+<<<<<<< HEAD
     this.$store.dispatch('loadCompanies')
+=======
+    this.$store.dispatch('getCompany')
+    //this.$store.dispatch('getCompany')
+>>>>>>> c9aab1ae81709a31db2c614ac5bf92ee150fa7b4
   },
   data () {
     return {
