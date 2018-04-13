@@ -9,13 +9,13 @@
 
 		<v-layout row wrap mt5 ml5>
 			<v-flex xs11 sm2 ml5>
-				<v-text-field name="invoice" label="Invoice number" id="invoice" v-model.number="purchaseDetails.invoice_no" :rules="[rules.required]" required/>
+				<v-text-field name="invoice" label="Invoice number" id="invoice" v-model.number="RentDetails.invoice_no" :rules="[rules.required]" required/>
 			</v-flex>
 			<v-flex xs11 sm2>
 				<v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition" offset-y full-width
 					:nudge-right="40" min-width="290px" :return-value.sync="purchaseDetails.date">
 					<v-text-field slot="activator" label="Date" v-model="purchaseDetails.date" prepend-icon="event" readonly required :rules="[rules.required]"/>
-					<v-date-picker v-model="purchaseDetails.date" no-title scrollable @change="$refs.menu.save(purchaseDetails.date)">
+					<v-date-picker v-model="RentDetails.date" no-title scrollable @change="$refs.menu.save(RentDetails.date)">
 						<v-spacer></v-spacer>
 						<v-btn flat color="primary" @click="menu = false">Cancel</v-btn>
 						<v-btn flat color="primary" @click="$refs.menu.save(date)">OK</v-btn>
@@ -25,10 +25,10 @@
 		</v-layout>
 		<v-flex xs11 sm2 ml5>
 			<v-select
-				:items="loadSuppliers"
-				v-model="supplier"
+				:items="loadCustomers"
+				v-model="customer"
 				item-text="name"
-				label="Supplier"
+				label="Customer"
 				autocomplete
 				required
 				:rules="[rules.supplier]"
@@ -88,7 +88,7 @@
 			</v-card>
 		</v-dialog>
 		<v-flex xs12>
-		<v-data-table :headers="transactionItemHeaders" :items="purchaseDetails.items" hide-actions class="elevation-1" mb2>
+		<v-data-table :headers="transactionItemHeaders" :items="RentDetails.items" hide-actions class="elevation-1" mb2>
 			<template slot="items" slot-scope="props">
 				<td>{{ props.item.item_master_name }}</td>
 				<td>{{ props.item.item_detail_name }}</td>
@@ -120,21 +120,21 @@
 							<v-flex xs12 sm6>
 								<v-checkbox
 									label="Is Credit"
-									v-model="purchaseDetails.is_credit"
+									v-model="RentDetails.is_credit"
     							></v-checkbox>
 							</v-flex>	
 							<v-flex xs12 sm6 md4>
 							</v-flex>
 							<v-flex xs12 sm6>
-								<v-text-field label="Transport Charges" mask="#########" v-model.number="purchaseDetails.transport_charges"></v-text-field>
+								<v-text-field label="Transport Charges" mask="#########" v-model.number="RentDetails.transport_charges"></v-text-field>
 							</v-flex>
 							<v-flex xs12 sm6 md4>
 							</v-flex>
 							<v-flex xs12 sm6>
-								<v-text-field label="Loading Charges" mask="#########" v-model.number="purchaseDetails.loading_charges"></v-text-field>
+								<v-text-field label="Loading Charges" mask="#########" v-model.number="RentDetails.loading_charges"></v-text-field>
 							</v-flex>
 							<v-flex xs12 sm6>
-								<v-text-field label="Unloading Charges" mask="#########" v-model.number="purchaseDetails.unloading_charges"></v-text-field>
+								<v-text-field label="Unloading Charges" mask="#########" v-model.number="RentDetails.unloading_charges"></v-text-field>
 							</v-flex>
 							<!-- <v-flex xs12 sm6 md4>
 							</v-flex>
@@ -166,11 +166,11 @@
 				<v-layout row wrap v-if="isGst">
 					<v-flex xs7><v-card-text>SGST: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ GST }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="purchaseDetails.transport>0">
-					<v-flex xs7><v-card-text>Transport: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ purchaseDetails.transport }}</v-card-text></v-flex>
+				<v-layout row wrap v-if="RentDetails.transport>0">
+					<v-flex xs7><v-card-text>Transport: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ RentDetails.transport }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="purchaseDetails.discount>0">
-					<v-flex xs7><v-card-text>Discount: </v-card-text></v-flex> <v-flex xs2><v-card-text>₹{{ purchaseDetails.discount }}</v-card-text></v-flex>
+				<v-layout row wrap v-if="RentDetails.discount>0">
+					<v-flex xs7><v-card-text>Discount: </v-card-text></v-flex> <v-flex xs2><v-card-text>₹{{ RentDetails.discount }}</v-card-text></v-flex>
 				</v-layout>
 				<v-layout row wrap>
 					<v-flex xs7><v-card-text>Net Total: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ netTotal }}</v-card-text></v-flex>
@@ -190,7 +190,7 @@
 <!--To be edited-->
 <script>
 	// import ItemModel from "../models/Item"
-	import PurchaseDetailsModel from '../models/PurchaseDetails'
+	import RentDetailsModel from '../models/RentDetails'
 	import Headers from '../models/headers'
 	import TransactionItemModel from '../models/TransactionItemDetails'
 	export default {
@@ -209,7 +209,7 @@
 			selectedItemCategoryId:0,
 			editedIndex: -1,
 			editedItem: TransactionItemModel,
-			purchaseDetails:PurchaseDetailsModel,
+			RentDetails:RentDetailsModel,
 			billTotal:{
 				totalAmt:0,
 				cGST:0,
@@ -219,7 +219,7 @@
 				discount:0,
 				net:0,
 			},
-			supplier:{
+			customer:{
 				id:1,
 				name:''
 			},
@@ -251,7 +251,7 @@
 			},
 
 			editItem(item) {
-				this.editedIndex = this.purchaseDetails.items.indexOf(item)
+				this.editedIndex = this.RentDetails.items.indexOf(item)
 				this.editedItem = Object.assign({}, TransactionItemModel)
 				this.editedItem.item_name=item.item_master_name
 				this.editedItem.item_detail_id=item.item_detail_id
@@ -296,14 +296,14 @@
 					
 					
 					if (this.editedIndex > -1) {
-						Object.assign(this.purchaseDetails.items[this.editedIndex], item)
+						Object.assign(this.RentDetails.items[this.editedIndex], item)
 					} else {
 						console.log(this.editedItem.total+" "+this.total)
-						this.purchaseDetails.items.push(item)
+						this.RentDetails.items.push(item)
 						// console.log(this.supplier.id)
 					}
 					console.log(this.billTotalAmt)
-					this.purchaseDetails.totalAmt=this.billTotalAmt 
+					this.RentDetails.totalAmt=this.billTotalAmt 
 					this.clear()
 					this.close()
 				}
@@ -311,25 +311,25 @@
 			addItem(){
 				this.editedItem.total=this.total
 				this.billTotal.totalAmt=this.billTotalAmt 
-				this.purchaseDetails.items.push(this.editedItem)
+				this.RentDetails.items.push(this.editedItem)
 			},
 			saveTransaction(){
-				this.purchaseDetails.amount=this.billTotalAmt
+				this.RentDetails.amount=this.billTotalAmt
 				// this.purchaseDetails.net=this.netTotal
 				// console.log("{\"date\":\""+this.purchaseDetails.date+"\",\"invoice_no\"\":"+this.purchaseDetails.invoiceNo+"\",\"supplier_id\":"+this.purchaseDetails.supplier.id+",\"items\":"+JSON.stringify(this.purchaseDetails.items)+",\"isGst\":"+isGst.toString()+"}")
 				//  console.log("purchase details: ")
-				this.purchaseDetails.ba_id=this.supplier.id
+				this.RentDetails.ba_id=this.supplier.id
 				// this.purchaseDetails.items=this.items	
-				console.log(JSON.stringify(this.purchaseDetails))	
+				console.log(JSON.stringify(this.RentDetails))	
 				
-				this.$store.dispatch('addPurchase',JSON.stringify(this.purchaseDetails))
+				this.$store.dispatch('addRentDetail',JSON.stringify(this.RentDetails))
 			},
 			extraDetails(){
 				this.extraDetailsDialog=true
 			},
 			saveExtraDetails(){
-				this.purchaseDetails.discount=this.discount
-				this.purchaseDetails.transport=this.transport
+				this.RentDetails.discount=this.discount
+				this.RentDetails.transport=this.transport
 				this.extraDetailsDialog=false
 			},
 			clear(){
@@ -347,7 +347,7 @@
 			},
 			billTotalAmt(){
 				var billTotal=0
-				this.purchaseDetails.items.forEach(function(item){
+				this.RentDetails.items.forEach(function(item){
 					billTotal+=item.total
 					console.log("total: "+item.total)
 				})
@@ -365,13 +365,13 @@
 					return 0
 			},
 			netTotal(){
-				var total=this.billTotalAmt+this.purchaseDetails.taxes+this.purchaseDetails.transport_charges+this.purchaseDetails.loading_charges+this.purchaseDetails.unloading_charges	
+				var total=this.billTotalAmt+this.RentDetails.taxes+this.RentDetails.transport_charges+this.RentDetails.loading_charges+this.purchaseDetails.unloading_charges	
 				if(total>0)
 					return total
 				else return 0	
 			},
-			loadSuppliers(){
-				return this.$store.getters.getSuppliers
+			loadCustomers(){
+				return this.$store.getters.getCustomers
 			},
 			LoadItemCategories(){
 				return this.$store.getters.getItemCategories
@@ -398,10 +398,10 @@
 				return item
 			},
 			GST(){
-				return this.purchaseDetails.taxes/2
+				return this.RentDetails.taxes/2
 			},
 			IGST(){
-				return this.purchaseDetails.taxes
+				return this.RentDetails.taxes
 			}
 		}
 	}

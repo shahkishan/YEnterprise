@@ -87,8 +87,8 @@
 						:search="itemSearch"
 						>
 						<template slot="items" slot-scope="props">
-							<td>{{ props.item.item_detail_name }}</td>
 							<td>{{ props.item.item_master_name }}</td>
+							<td>{{ props.item.item_detail_name }}</td>
 							<td>{{ props.item.hsn_code }}</td>
 							<td>{{ props.item.description }}</td>
 
@@ -115,12 +115,15 @@
 				<v-card-text>
 					<v-container grid-list-md>
 						<v-layout wrap>
+
+							<v-flex xs12>
+								<v-select label="Item Category" v-model="itemCatgId" :items="loadAllCategories" item-value="item_master_id" item-text="item_master_name"></v-select>
+							</v-flex>
+
 							<v-flex xs12>
 								<v-text-field label="Name" v-model="item.item_detail_name"></v-text-field>
 							</v-flex>
-							<v-flex xs12>
-								<v-select label="Item Category" v-model="itemCatg" :items="loadAllCategories" item-text="item_master_name"></v-select>
-							</v-flex>
+							
 							<v-flex xs12>
 								<v-text-field label="Description" v-model="item.description"></v-text-field>
 							</v-flex>
@@ -148,7 +151,7 @@ export default {
 		return{
 			category:Object.assign({},CategoryModel),
 			item:Object.assign({},ItemModel),
-			itemCatg:Object.assign({},CategoryModel),
+			itemCatgId:0,
 			Headers,
 			itemSearch:'',
 			categorySearch:'',
@@ -169,7 +172,15 @@ export default {
 		},
 		ItemFormTitle(){
 			return this.isItemEdit? 'Edit Item':'Add Item'
+		},
+		ItemCategory(){
+			var itemCategories=this.loadAllCategories
+			var itemCatg=itemCategories.find(itemCatg=>{
+				return itemCatg.item_master_id === this.itemCatgId
+			})
+			return itemCatg
 		}
+
 	},
 	methods:{
 		clear(flag){
@@ -179,7 +190,7 @@ export default {
 			} else {
 				this.item=Object.assign(ItemModel)
 				this.isItemEdit=false
-				this.itemCatg=''
+				this.itemCatgId=0
 			}
 		},
 		save(flag){
@@ -190,9 +201,9 @@ export default {
 					this.$store.dispatch('addNewItemCategory',this.category)
 				}
 			} else {
-				this.item.item_master_id=this.itemCatg.item_master_id
-				this.item.item_master_name=this.itemCatg.item_master_name
-				this.item.HSNCode=this.itemCatg.HSNCode
+				this.item.item_master_id=this.ItemCategory.item_master_id
+				this.item.item_master_name=this.ItemCategory.item_master_name
+				this.item.hsn_code=this.ItemCategory.hsn_code
 				if(this.isItemEdit){
 					this.$store.dispatch('updateItem',this.item)
 				} else {
@@ -207,13 +218,10 @@ export default {
 				this.isCatgEdit=true
 				this.category=item
 			} else {
+				this.clear(false)
 				this.isItemEdit=true
 				this.item=item
-				this.itemCatg=Object.assign(CategoryModel)
-				this.itemCatg.item_master_id=this.item.item_master_id
-				this.itemCatg.item_master_name=this.item.item_master_name
-				this.itemCatg.hsn_code=this.item.hsn_code
-				console.log(JSON.stringify(this.itemCatg))
+				this.itemCatgId=item.item_master_id
 			}
 		},
 		deleteItem(item,flag){

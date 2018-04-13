@@ -5,6 +5,7 @@ import supplier from './Supplier/index'
 import customer from './Customer/index'
 import items from './Item/index'
 import company from './Company'
+import transactions from './Transactions/index'
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({
@@ -13,7 +14,8 @@ export const store = new Vuex.Store({
         supplier,
         customer,
         items,
-        company
+        company,
+        transactions
     },
     state:{
         count:0,

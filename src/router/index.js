@@ -10,6 +10,8 @@ import Customers from '@/components/Customers'
 import Suppliers from '@/components/Suppliers'
 import Purchase from '@/components/NewPurchase'
 import Items from '@/components/Item'
+import Rent from '@/components/Rent'
+import MiscItems from '@/components/MiscItems'
 Vue.use(Router)
 
 Vue.use(Router)
@@ -66,6 +68,16 @@ export default new Router({
       path:'/items',
       name:'Items',
       component:Items
+    },
+    {
+      path:'/rent',
+      name:'Rent',
+      component:Rent
+    },
+    {
+      path:'/miscItems',
+      name:'MiscItems',
+      component:MiscItems
     }
 
   ],

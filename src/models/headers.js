@@ -5,10 +5,41 @@ export default{
         {text:'Description',sortable:false,value:'description'},
     ],
     items:[
-        {text:'Name',sortable:false,value:'item_detail_name'},
         {text:'Category',sortable:false,value:'item_master_name'},
+        {text:'Name',sortable:false,value:'item_detail_name'},
         {text:'HSN',sortable:false,value:'HSNCode'},
         {text:'Description',sortable:false,value:'description'},
-
+    ],
+    transactionItems:[
+        {
+            text: 'Category',
+            sortable: false,
+            value: 'item_master_name'
+        },
+        {
+            text: 'Item',
+            sortable: false,
+            value: 'item_detail_name'
+        },
+        {
+            text: 'HSN Code',
+            value: 'hsn',
+            sortable: false
+        },
+        {
+            text: 'Quantity',
+            value: 'qty',
+            sortable: false
+        },
+        {
+            text: 'Rate',
+            value: 'rate',
+            sortable: false
+        },
+        {
+            text: 'Total (Inclusive of Taxes)',
+            value: 'total',
+            sortable: false
+        }
     ]
 }
