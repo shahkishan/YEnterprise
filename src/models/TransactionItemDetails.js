@@ -4,5 +4,6 @@ export default{
     item_master_name:'',
 	quantity: '',
     rate: '',
-    hsn_code:0
+    hsn_code:0,
+    gst_rate:0
 }

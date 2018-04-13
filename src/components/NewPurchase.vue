@@ -1,14 +1,20 @@
 <template>
-	<v-container fluid grid-list-md mt5 ml5>
+	<v-container fluid grid-list-md>
 		<v-container>
-
-		<v-switch
-      		:label="`GST: ${isGst}`"
-      		v-model="isGst"
-    	></v-switch>
-
-		<v-layout row wrap mt5 ml5>
-			<v-flex xs11 sm2 ml5>
+		<v-layout>
+			<v-flex xs2>
+				<v-switch
+					:label="`GST: ${isGst}`"
+					v-model="isGst"
+				></v-switch>
+			</v-flex>
+			<v-flex xs2>
+				<v-select :items="LoadCompanies" label="Company" v-model="purchaseDetails.company_id" item-value="company_id" item-text="name" :rules="[rules.select]"/>
+			</v-flex>
+		</v-layout>
+		
+		<v-layout row wrap>
+			<v-flex xs11 sm2>
 				<v-text-field name="invoice" label="Invoice number" id="invoice" v-model.number="purchaseDetails.invoice_no" :rules="[rules.required]" required/>
 			</v-flex>
 			<v-flex xs11 sm2>
@@ -32,7 +38,7 @@
 				label="Supplier"
 				autocomplete
 				required
-				:rules="[rules.supplier]"
+				:rules="[rules.select]"
 			></v-select>
 		</v-flex>
 
@@ -156,25 +162,28 @@
 			<v-flex xs5 sm6 md6 lg2 offset-lg10 offset-md6 offset-sm6  offset-xs7>
 			<v-card md6>
 				<v-layout row wrap>
-					<v-flex xs7><v-card-text>Total: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ billTotalAmt }}</v-card-text></v-flex>
+					<v-flex xs7><v-card-text>SubTotal: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ billTotalAmt }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="isGst">
+				<v-layout row wrap v-if="isGst && !isIGST">
 					<v-flex xs7><v-card-text>CGST: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ GST }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="isGst">
+				<v-layout row wrap v-if="isGst&&isIGST">
 					<v-flex xs7><v-card-text>IGST: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ IGST }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="isGst">
+				<v-layout row wrap v-if="isGst&&!isIGST">
 					<v-flex xs7><v-card-text>SGST: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ GST }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="purchaseDetails.transport>0">
+				<v-layout row wrap v-if="purchaseDetails.transport_charges>0">
 					<v-flex xs7><v-card-text>Transport: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ purchaseDetails.transport }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="purchaseDetails.discount>0">
-					<v-flex xs7><v-card-text>Discount: </v-card-text></v-flex> <v-flex xs2><v-card-text>₹{{ purchaseDetails.discount }}</v-card-text></v-flex>
+				<v-layout row wrap v-if="purchaseDetails.loading_charges>0">
+					<v-flex xs7><v-card-text>Loading Charges: </v-card-text></v-flex> <v-flex xs2><v-card-text>₹{{ purchaseDetails.loading_charges }}</v-card-text></v-flex>
+				</v-layout>
+				<v-layout row wrap v-if="purchaseDetails.unloading_charges>0">
+					<v-flex xs7><v-card-text>Loading Charges: </v-card-text></v-flex> <v-flex xs2><v-card-text>₹{{ purchaseDetails.unloading_charges }}</v-card-text></v-flex>
 				</v-layout>
 				<v-layout row wrap>
-					<v-flex xs7><v-card-text>Net Total: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ netTotal }}</v-card-text></v-flex>
+					<v-flex xs7><v-card-text>TOTAL: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ netTotal }}</v-card-text></v-flex>
 				</v-layout>
 				<v-flex xs12><v-btn color="blue darken-1" flat @click.native="extraDetails">Extra details</v-btn></v-flex>
 			</v-card>
@@ -229,7 +238,7 @@
           		required: (value) => !!value || 'Required.',
         		// quantity: (value) =>  !!value || 'Quantity cannot be zero.',
 				// rate:(value)=>  !!value || 'Rate cannot be zero.',
-				supplier: (value)=> !!value.name||"Required.",
+				select: (value)=> value>0||"Required.",
 				item: (value)=> !!value.name||"Required.",
 				itemSelect: (value)=> value>0 || 'Required'
         	}
@@ -290,9 +299,10 @@
 					quantity:this.editedItem.quantity,
 					rate:this.editedItem.rate,
 					total:this.total,
-					hsn_code:this.ItemCategory.hsn_code
+					hsn_code:this.ItemCategory.hsn_code,
+					gst_rate:this.ItemCategory.gst_rate
 				}
-				console.log(JSON.stringify(item))
+				console.log("here: "+JSON.stringify(item))
 				if(item.item_detail_name.length>0 && item.rate>0 && item.quantity>0){
 					
 					
@@ -392,22 +402,59 @@
 				return item.item_detail_name
 			},
 			ItemCategory(){
-				var item=this.LoadItems.find(item=>{
+				var item=this.LoadItemCategories.find(item=>{
               		return item.item_master_id===this.selectedItemCategoryId
 				})
+				console.log(JSON.stringify(item))
 				return item
 			},
+			Taxes(){
+				var taxes=0
+				if(this.isGst){
+					this.purchaseDetails.items.forEach(item=>{
+						console.log(JSON.stringify(item))
+						taxes+=(item.gst_rate*item.total/100)
+					})
+					console.log(taxes)
+				}
+				return taxes
+			},
 			GST(){
-				return this.purchaseDetails.taxes/2
+				console.log(this.Taxes/2)
+				return this.Taxes/2
 			},
 			IGST(){
-				return this.purchaseDetails.taxes
+				return this.Taxes
 			},
 			IsCredit(){
 				if(this.is_credit)
 					return 1
 				else 
 					return 0
+			},
+			LoadCompanies(){
+				return this.$store.getters.getCompanies
+			},
+			Company(){
+				var company=this.LoadCompanies.find(company=>{
+					return company.company_id==this.purchaseDetails.company_id
+				})
+				return company
+			},
+			Supplier(){
+				var supplier=this.loadSuppliers.find(supplier=>{
+					return supplier.ba_id==this.purchaseDetails.ba_id
+				})
+
+				return supplier
+			},
+			isIGST(){
+				
+				if(this.purchaseDetails.company_id>0&&this.purchaseDetails.ba_id>0){
+					return this.Company.statecode != this.Supplier.statecode
+				}
+				else 
+					return 0	
 			}
 		}
 	}

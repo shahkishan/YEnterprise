@@ -16,7 +16,7 @@
 			<v-flex md8>
 		<v-data-table
 				:headers="headers"
-				:items="loadCompany"
+				:items="loadCompanies"
 				hide-actions
 				class="elevation-1"
 		>
@@ -180,8 +180,8 @@
 			formTitle () {
 				return this.isEdit ? 'Edit Company' : 'New Company'
 			},
-			loadCompany(){
-				return this.$store.getters.getCompany
+			loadCompanies(){
+				return this.$store.getters.getCompanies
 			}
 		},
 

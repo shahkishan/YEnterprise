@@ -10,29 +10,29 @@ Vue.use(Vuex)
 
 export default{
     state:{
-        company:[]
+        companies:[]
     },
     getters:{
-        getCompany:state=>state.company
+        getCompanies:state=>state.companies
     },
     mutations:{
         addNewCompany:(state,payload)=>{
-            state.company.push(payload)
+            state.companies.push(payload)
         },
 
-        getCompany:(state,payload)=>{
-            state.company=payload
+        loadCompanies:(state,payload)=>{
+            state.companies=payload
         },
         updateCompany:(state,payload)=>{
-            var company=state.company.find(company=>{
+            var company=state.companies.find(company=>{
                 return company.company_id==payload.company_id
             })
-            const index=state.company.indexOf(payload)
-            state.company.splice(index,1,payload)
+            const index=state.companies.indexOf(payload)
+            state.companies.splice(index,1,payload)
         },
         deleteCompany:(state,payload)=>{
-            const index=state.company.indexOf(payload)
-            state.company.splice(index,1)
+            const index=state.companies.indexOf(payload)
+            state.companies.splice(index,1)
         }
     },
     actions:{
@@ -47,13 +47,13 @@ export default{
                 console.log(err)
             })
         },
-        getCompany({commit,getters})
+        loadCompanies({commit,getters})
         {
             
             axios.get(URL)
             .then(res=>{
                 console.log(res.data)
-                commit('getCompany',res.data)
+                commit('loadCompanies',res.data)
             })
             .catch(err=>{
                 console.log(err)

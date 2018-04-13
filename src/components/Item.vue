@@ -22,8 +22,9 @@
 						<template slot="items" slot-scope="props">
 							<td>{{ props.item.item_master_name }}</td>
 							<td>{{ props.item.hsn_code }}</td>
+							<td>{{ props.item.gst_rate }}</td>
 							<td>{{ props.item.description }}</td>
-
+							
 							<td class="justify-center layout px-0">
 								<v-btn icon class="mx-0" @click="editItem(props.item,true)">
 									<v-icon color="teal">edit</v-icon>
@@ -47,11 +48,14 @@
 				<v-card-text>
 					<v-container grid-list-md>
 						<v-layout wrap>
-							<v-flex xs10 sm8 md8>
+							<v-flex xs12>
 								<v-text-field label="Name" v-model="category.item_master_name"></v-text-field>
 							</v-flex>
-							<v-flex xs2 sm4 md4>
+							<v-flex xs4>
 								<v-text-field label="HSN Code" v-model="category.hsn_code"></v-text-field>
+							</v-flex>
+							<v-flex xs4>
+								<v-text-field label="GST Rate" v-model="category.gst_rate"></v-text-field>
 							</v-flex>
 							<v-flex xs12>
 								<v-text-field label="Description" v-model="category.description"></v-text-field>

@@ -33,7 +33,7 @@ export default{
             axios.post(URL,payload)
                 .then(res=>{
                     console.log(payload)
-                    dispatch('loadPurchases')
+                    this.$store.dispatch('loadPurchases')
                 })
                 .catch(err=>{
                     console.log(err)

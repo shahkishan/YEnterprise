@@ -2,13 +2,15 @@ export default{
     itemCategory:[
         {text:'Name',sortable:false,value:'name'},
         {text:'HSN',sortable:false,value:'hsn'},
+        {text:'GST Rate',sortable:false,value:'gst_rate'},
         {text:'Description',sortable:false,value:'description'},
     ],
     items:[
         {text:'Category',sortable:false,value:'item_master_name'},
         {text:'Name',sortable:false,value:'item_detail_name'},
         {text:'HSN',sortable:false,value:'HSNCode'},
-        {text:'Description',sortable:false,value:'description'},
+        {text:'Description',sortable:false,value:'description'}
+        
     ],
     transactionItems:[
         {

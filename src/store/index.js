@@ -4,7 +4,7 @@ import user from './User/index'
 import supplier from './Supplier/index'
 import customer from './Customer/index'
 import items from './Item/index'
-import transactions from './Transactions/index'
+import transactions from './Purchase/index'
 import company from './Company'
 Vue.use(Vuex)
 
