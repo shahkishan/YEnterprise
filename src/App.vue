@@ -47,6 +47,7 @@ export default {
     this.$store.dispatch('loadItemCategories')
     this.$store.dispatch('loadItems')
     this.$store.dispatch('getCompany')
+    this.$store.dispatch('getMiscItems')
     //this.$store.dispatch('getCompany')
   },
   data () {
