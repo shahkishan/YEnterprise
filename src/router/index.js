@@ -8,10 +8,13 @@ import Transport from '@/components/Transport'
 import Company from '@/components/Company'
 import Customers from '@/components/Customers'
 import Suppliers from '@/components/Suppliers'
-import Purchase from '@/components/NewPurchase'
+import AddPurchase from '@/components/NewPurchase'
+import Purchase from '@/components/Purchase'
 import Items from '@/components/Item'
 import Rent from '@/components/Rent'
 import MiscItems from '@/components/MiscItems'
+import UpdatePurchase from '@/components/UpdatePurchase'
+import AddRent from '@/components/AddRent'
 Vue.use(Router)
 
 Vue.use(Router)
@@ -78,6 +81,21 @@ export default new Router({
       path:'/miscItems',
       name:'MiscItems',
       component:MiscItems
+    },
+    {
+      path:'/purchase/add',
+      name:'Add Purchase',
+      component:AddPurchase
+    },
+    {
+      path:'/purchase/update',
+      name:'Update Purchase',
+      component: UpdatePurchase
+    },
+    {
+      path:'/rent/add',
+      name:'Add Rent',
+      component: AddRent
     }
 
   ],

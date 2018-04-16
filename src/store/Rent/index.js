@@ -10,12 +10,15 @@ Vue.use(Vuex)
 
 export default{
     state:{
-        rent:[]
+        rents:[]
     },
     getters:{
-        getRentDetails:state=>state.rent
+        getRentDetails:state=>state.rents
     },
     mutations:{
+        
+    },
+    actions:{
         
     }
 }

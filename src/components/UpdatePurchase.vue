@@ -174,7 +174,7 @@
 					<v-flex xs7><v-card-text>SGST: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ GST }}</v-card-text></v-flex>
 				</v-layout>
 				<v-layout row wrap v-if="purchaseDetails.transport_charges>0">
-					<v-flex xs7><v-card-text>Transport: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ purchaseDetails.transport }}</v-card-text></v-flex>
+					<v-flex xs7><v-card-text>Transport: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ purchaseDetails.transport_charges }}</v-card-text></v-flex>
 				</v-layout>
 				<v-layout row wrap v-if="purchaseDetails.loading_charges>0">
 					<v-flex xs7><v-card-text>Loading Charges: </v-card-text></v-flex> <v-flex xs2><v-card-text>₹{{ purchaseDetails.loading_charges }}</v-card-text></v-flex>
@@ -220,7 +220,7 @@
 			selectedItemCategoryId:0,
 			editedIndex: -1,
 			editedItem: TransactionItemModel,
-			purchaseDetails:PurchaseDetailsModel,
+            purchaseDetails:{},
 			billTotal:{
 				totalAmt:0,
 				cGST:0,
@@ -236,8 +236,6 @@
 			},
 			rules: {
           		required: (value) => !!value || 'Required.',
-        		// quantity: (value) =>  !!value || 'Quantity cannot be zero.',
-				// rate:(value)=>  !!value || 'Rate cannot be zero.',
 				select: (value)=> value>0||"Required.",
 				item: (value)=> !!value.name||"Required.",
 				itemSelect: (value)=> value>0 || 'Required'
@@ -258,7 +256,10 @@
 
 		methods: {
 			initialize() {
-				this.items = []
+                this.purchaseDetails=this.$store.getters.getCurrentPurchase
+                if(this.purchaseDetails.taxes==0)
+                    this.isGst=false
+                console.log(JSON.stringify(this.purchaseDetails))
 			},
 
 			editItem(item) {
@@ -312,7 +313,6 @@
 					} else {
 						console.log(this.editedItem.total+" "+this.total)
 						this.purchaseDetails.items.push(item)
-						// console.log(this.supplier.id)
 					}
 					console.log(this.billTotalAmt)
 					this.clear()
@@ -326,14 +326,10 @@
 			},
 			saveTransaction(){
 				this.purchaseDetails.amount=this.billTotalAmt
-				// this.purchaseDetails.net=this.netTotal
-				// console.log("{\"date\":\""+this.purchaseDetails.date+"\",\"invoice_no\"\":"+this.purchaseDetails.invoiceNo+"\",\"supplier_id\":"+this.purchaseDetails.supplier.id+",\"items\":"+JSON.stringify(this.purchaseDetails.items)+",\"isGst\":"+isGst.toString()+"}")
-				//  console.log("purchase details: ")
 				this.purchaseDetails.is_credit=this.IsCredit
-				// this.purchaseDetails.items=this.items	
 				console.log(JSON.stringify(this.purchaseDetails))	
-				
-				this.$store.dispatch('addPurchase',this.purchaseDetails)
+                this.$store.dispatch('updatePurchase',this.purchaseDetails)
+                this.$router.push({name: 'Purchase'})
 			},
 			extraDetails(){
 				this.extraDetailsDialog=true

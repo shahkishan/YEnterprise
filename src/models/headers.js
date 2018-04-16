@@ -39,7 +39,7 @@ export default{
             sortable: false
         },
         {
-            text: 'Total (Inclusive of Taxes)',
+            text: 'Total',
             value: 'total',
             sortable: false
         }

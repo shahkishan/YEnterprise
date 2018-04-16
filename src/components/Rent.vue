@@ -1,21 +1,27 @@
 <template>
-	<v-container fluid grid-list-md mt5 ml5>
+	<v-container fluid grid-list-md>
 		<v-container>
-
-		<v-switch
-      		:label="`GST: ${isGst}`"
-      		v-model="isGst"
-    	></v-switch>
-
-		<v-layout row wrap mt5 ml5>
-			<v-flex xs11 sm2 ml5>
-				<v-text-field name="invoice" label="Invoice number" id="invoice" v-model.number="RentDetails.invoice_no" :rules="[rules.required]" required/>
+		<v-layout>
+			<v-flex xs2>
+				<v-switch
+					:label="`GST: ${isGst}`"
+					v-model="isGst"
+				></v-switch>
+			</v-flex>
+			<v-flex xs2>
+				<v-select :items="LoadCompanies" label="Company" v-model="purchaseDetails.company_id" item-value="company_id" item-text="name" :rules="[rules.select]"/>
+			</v-flex>
+		</v-layout>
+		
+		<v-layout row wrap>
+			<v-flex xs11 sm2>
+				<v-text-field name="invoice" label="Invoice number" id="invoice" v-model.number="purchaseDetails.invoice_no" :rules="[rules.required]" required/>
 			</v-flex>
 			<v-flex xs11 sm2>
 				<v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition" offset-y full-width
 					:nudge-right="40" min-width="290px" :return-value.sync="purchaseDetails.date">
 					<v-text-field slot="activator" label="Date" v-model="purchaseDetails.date" prepend-icon="event" readonly required :rules="[rules.required]"/>
-					<v-date-picker v-model="RentDetails.date" no-title scrollable @change="$refs.menu.save(RentDetails.date)">
+					<v-date-picker v-model="purchaseDetails.date" no-title scrollable @change="$refs.menu.save(purchaseDetails.date)">
 						<v-spacer></v-spacer>
 						<v-btn flat color="primary" @click="menu = false">Cancel</v-btn>
 						<v-btn flat color="primary" @click="$refs.menu.save(date)">OK</v-btn>
@@ -25,13 +31,14 @@
 		</v-layout>
 		<v-flex xs11 sm2 ml5>
 			<v-select
-				:items="loadCustomers"
-				v-model="customer"
+				:items="loadSuppliers"
+				v-model="purchaseDetails.ba_id"
+				item-value="ba_id"
 				item-text="name"
-				label="Customer"
+				label="Supplier"
 				autocomplete
 				required
-				:rules="[rules.supplier]"
+				:rules="[rules.select]"
 			></v-select>
 		</v-flex>
 
@@ -43,7 +50,7 @@
 				<v-select :items="LoadItems" v-model="selectedItemId" item-value="item_detail_id" item-text="item_detail_name" label="Item" autocomplete required :rules="[rules.itemSelect]"></v-select>
 			</v-flex>
 			<v-flex xs11 sm2>
-				<v-text-field label="Quantity" name="qty" id="qty" mask="#########" v-model.number="editedItem.qty" required :rules="[rules.required]" />
+				<v-text-field label="Quantity" name="quantity" id="quantity" mask="#########" v-model.number="editedItem.quantity" required :rules="[rules.required]" />
 			</v-flex>
 			<v-flex xs11 sm2>
 				<v-text-field label="Rate" name="rate" id="rate" mask="#########" v-model.number="editedItem.rate" required :rules="[rules.required]" />
@@ -69,7 +76,7 @@
 								<v-select :items="LoadItems" v-model="selectedItemId" item-value="item_detail_id" item-text="item_detail_name" label="Item" autocomplete required :rules="[rules.itemSelect]"></v-select>
 							</v-flex>					
 							<v-flex xs12 sm6 md4>
-								<v-text-field label="Quantity" mask="#########" v-model.number="editedItem.qty" required :rules="[rules.required]"></v-text-field>
+								<v-text-field label="Quantity" mask="#########" v-model.number="editedItem.quantity" required :rules="[rules.required]"></v-text-field>
 							</v-flex>
 							<v-flex xs12 sm6 md4>
 								<v-text-field label="Rate" mask="#########" v-model.number="editedItem.rate" required :rules="[rules.required]"></v-text-field>
@@ -88,12 +95,12 @@
 			</v-card>
 		</v-dialog>
 		<v-flex xs12>
-		<v-data-table :headers="transactionItemHeaders" :items="RentDetails.items" hide-actions class="elevation-1" mb2>
+		<v-data-table :headers="transactionItemHeaders" :items="purchaseDetails.items" hide-actions class="elevation-1" mb2>
 			<template slot="items" slot-scope="props">
 				<td>{{ props.item.item_master_name }}</td>
 				<td>{{ props.item.item_detail_name }}</td>
 				<td class="text-xs-left">{{ props.item.hsn_code }}</td>
-				<td class="text-xs-left">{{ props.item.qty }}</td>
+				<td class="text-xs-left">{{ props.item.quantity }}</td>
 				<td class="text-xs-left">{{ props.item.rate }}</td>
 				<td class="text-xs-left">{{ props.item.total }}</td>
 				<td class="justify-center layout px-0">
@@ -120,21 +127,21 @@
 							<v-flex xs12 sm6>
 								<v-checkbox
 									label="Is Credit"
-									v-model="RentDetails.is_credit"
+									v-model="is_credit"
     							></v-checkbox>
 							</v-flex>	
 							<v-flex xs12 sm6 md4>
 							</v-flex>
 							<v-flex xs12 sm6>
-								<v-text-field label="Transport Charges" mask="#########" v-model.number="RentDetails.transport_charges"></v-text-field>
+								<v-text-field label="Transport Charges" mask="#########" v-model.number="purchaseDetails.transport_charges"></v-text-field>
 							</v-flex>
 							<v-flex xs12 sm6 md4>
 							</v-flex>
 							<v-flex xs12 sm6>
-								<v-text-field label="Loading Charges" mask="#########" v-model.number="RentDetails.loading_charges"></v-text-field>
+								<v-text-field label="Loading Charges" mask="#########" v-model.number="purchaseDetails.loading_charges"></v-text-field>
 							</v-flex>
 							<v-flex xs12 sm6>
-								<v-text-field label="Unloading Charges" mask="#########" v-model.number="RentDetails.unloading_charges"></v-text-field>
+								<v-text-field label="Unloading Charges" mask="#########" v-model.number="purchaseDetails.unloading_charges"></v-text-field>
 							</v-flex>
 							<!-- <v-flex xs12 sm6 md4>
 							</v-flex>
@@ -155,25 +162,28 @@
 			<v-flex xs5 sm6 md6 lg2 offset-lg10 offset-md6 offset-sm6  offset-xs7>
 			<v-card md6>
 				<v-layout row wrap>
-					<v-flex xs7><v-card-text>Total: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ billTotalAmt }}</v-card-text></v-flex>
+					<v-flex xs7><v-card-text>SubTotal: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ billTotalAmt }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="isGst">
+				<v-layout row wrap v-if="isGst && !isIGST">
 					<v-flex xs7><v-card-text>CGST: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ GST }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="isGst">
+				<v-layout row wrap v-if="isGst&&isIGST">
 					<v-flex xs7><v-card-text>IGST: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ IGST }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="isGst">
+				<v-layout row wrap v-if="isGst&&!isIGST">
 					<v-flex xs7><v-card-text>SGST: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ GST }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="RentDetails.transport>0">
-					<v-flex xs7><v-card-text>Transport: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ RentDetails.transport }}</v-card-text></v-flex>
+				<v-layout row wrap v-if="purchaseDetails.transport_charges>0">
+					<v-flex xs7><v-card-text>Transport: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ purchaseDetails.transport }}</v-card-text></v-flex>
 				</v-layout>
-				<v-layout row wrap v-if="RentDetails.discount>0">
-					<v-flex xs7><v-card-text>Discount: </v-card-text></v-flex> <v-flex xs2><v-card-text>₹{{ RentDetails.discount }}</v-card-text></v-flex>
+				<v-layout row wrap v-if="purchaseDetails.loading_charges>0">
+					<v-flex xs7><v-card-text>Loading Charges: </v-card-text></v-flex> <v-flex xs2><v-card-text>₹{{ purchaseDetails.loading_charges }}</v-card-text></v-flex>
+				</v-layout>
+				<v-layout row wrap v-if="purchaseDetails.unloading_charges>0">
+					<v-flex xs7><v-card-text>Loading Charges: </v-card-text></v-flex> <v-flex xs2><v-card-text>₹{{ purchaseDetails.unloading_charges }}</v-card-text></v-flex>
 				</v-layout>
 				<v-layout row wrap>
-					<v-flex xs7><v-card-text>Net Total: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ netTotal }}</v-card-text></v-flex>
+					<v-flex xs7><v-card-text>TOTAL: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ netTotal }}</v-card-text></v-flex>
 				</v-layout>
 				<v-flex xs12><v-btn color="blue darken-1" flat @click.native="extraDetails">Extra details</v-btn></v-flex>
 			</v-card>
@@ -190,7 +200,7 @@
 <!--To be edited-->
 <script>
 	// import ItemModel from "../models/Item"
-	import RentDetailsModel from '../models/RentDetails'
+	import PurchaseDetailsModel from '../models/PurchaseDetails'
 	import Headers from '../models/headers'
 	import TransactionItemModel from '../models/TransactionItemDetails'
 	export default {
@@ -202,6 +212,7 @@
 			discount:'',
 			transport:'',
 			isGst:true,
+			is_credit:false,
 			totalGST:0,
 			transactionItemHeaders:Headers.transactionItems,
 			items: [],
@@ -209,7 +220,7 @@
 			selectedItemCategoryId:0,
 			editedIndex: -1,
 			editedItem: TransactionItemModel,
-			RentDetails:RentDetailsModel,
+			purchaseDetails:PurchaseDetailsModel,
 			billTotal:{
 				totalAmt:0,
 				cGST:0,
@@ -219,15 +230,15 @@
 				discount:0,
 				net:0,
 			},
-			customer:{
+			supplier:{
 				id:1,
 				name:''
 			},
 			rules: {
           		required: (value) => !!value || 'Required.',
-        		// qty: (value) =>  !!value || 'Quantity cannot be zero.',
+        		// quantity: (value) =>  !!value || 'Quantity cannot be zero.',
 				// rate:(value)=>  !!value || 'Rate cannot be zero.',
-				supplier: (value)=> !!value.name||"Required.",
+				select: (value)=> value>0||"Required.",
 				item: (value)=> !!value.name||"Required.",
 				itemSelect: (value)=> value>0 || 'Required'
         	}
@@ -251,12 +262,12 @@
 			},
 
 			editItem(item) {
-				this.editedIndex = this.RentDetails.items.indexOf(item)
+				this.editedIndex = this.purchaseDetails.items.indexOf(item)
 				this.editedItem = Object.assign({}, TransactionItemModel)
 				this.editedItem.item_name=item.item_master_name
 				this.editedItem.item_detail_id=item.item_detail_id
 				this.editedItem.rate=item.rate
-				this.editedItem.qty=item.qty
+				this.editedItem.quantity=item.quantity
 				this.selectedItemId=item.item_detail_id
 				this.selectedItemCategoryId=item.item_master_id
 				this.dialog = true
@@ -285,25 +296,25 @@
 					item_detail_id:this.selectedItemId,
 					item_detail_name:itemName,
 					item_master_name:this.ItemCategory.item_master_name,
-					qty:this.editedItem.qty,
+					quantity:this.editedItem.quantity,
 					rate:this.editedItem.rate,
 					total:this.total,
-					hsn_code:this.ItemCategory.hsn_code
+					hsn_code:this.ItemCategory.hsn_code,
+					gst_rate:this.ItemCategory.gst_rate
 				}
-				console.log(JSON.stringify(item))
-				if(item.item_detail_name.length>0 && item.rate>0 && item.qty>0){
+				console.log("here: "+JSON.stringify(item))
+				if(item.item_detail_name.length>0 && item.rate>0 && item.quantity>0){
 					
 					
 					
 					if (this.editedIndex > -1) {
-						Object.assign(this.RentDetails.items[this.editedIndex], item)
+						Object.assign(this.purchaseDetails.items[this.editedIndex], item)
 					} else {
 						console.log(this.editedItem.total+" "+this.total)
-						this.RentDetails.items.push(item)
+						this.purchaseDetails.items.push(item)
 						// console.log(this.supplier.id)
 					}
 					console.log(this.billTotalAmt)
-					this.RentDetails.totalAmt=this.billTotalAmt 
 					this.clear()
 					this.close()
 				}
@@ -311,43 +322,42 @@
 			addItem(){
 				this.editedItem.total=this.total
 				this.billTotal.totalAmt=this.billTotalAmt 
-				this.RentDetails.items.push(this.editedItem)
+				this.purchaseDetails.items.push(this.editedItem)
 			},
 			saveTransaction(){
-				this.RentDetails.amount=this.billTotalAmt
+				this.purchaseDetails.amount=this.billTotalAmt
 				// this.purchaseDetails.net=this.netTotal
 				// console.log("{\"date\":\""+this.purchaseDetails.date+"\",\"invoice_no\"\":"+this.purchaseDetails.invoiceNo+"\",\"supplier_id\":"+this.purchaseDetails.supplier.id+",\"items\":"+JSON.stringify(this.purchaseDetails.items)+",\"isGst\":"+isGst.toString()+"}")
 				//  console.log("purchase details: ")
-				this.RentDetails.ba_id=this.supplier.id
+				this.purchaseDetails.ba_id=this.supplier.id
+				this.purchaseDetails.is_credit=this.IsCredit
 				// this.purchaseDetails.items=this.items	
-				console.log(JSON.stringify(this.RentDetails))	
+				console.log(JSON.stringify(this.purchaseDetails))	
 				
-				this.$store.dispatch('addRentDetail',JSON.stringify(this.RentDetails))
+				this.$store.dispatch('addPurchase',this.purchaseDetails)
 			},
 			extraDetails(){
 				this.extraDetailsDialog=true
 			},
 			saveExtraDetails(){
-				this.RentDetails.discount=this.discount
-				this.RentDetails.transport=this.transport
 				this.extraDetailsDialog=false
 			},
 			clear(){
 				this.editedItem=Object.assign({},TransactionItemModel)
 				this.selectedItemId=0
 				this.editedItem.price=''
-				this.editedItem.qty='0'
+				this.editedItem.quantity='0'
 				this.selectedItemCategoryId=0
 			}
 
 		},
 		computed:{
 			total(){
-				return this.editedItem.rate*this.editedItem.qty
+				return this.editedItem.rate*this.editedItem.quantity
 			},
 			billTotalAmt(){
 				var billTotal=0
-				this.RentDetails.items.forEach(function(item){
+				this.purchaseDetails.items.forEach(function(item){
 					billTotal+=item.total
 					console.log("total: "+item.total)
 				})
@@ -359,19 +369,19 @@
 			},
 			itemGST(){
 				if(this.isGst){
-					return this.editedItem.rate*this.editedItem.qty*5/100
+					return this.editedItem.rate*this.editedItem.quantity*5/100
 				}
 				else
 					return 0
 			},
 			netTotal(){
-				var total=this.billTotalAmt+this.RentDetails.taxes+this.RentDetails.transport_charges+this.RentDetails.loading_charges+this.purchaseDetails.unloading_charges	
+				var total=this.billTotalAmt+this.purchaseDetails.taxes+this.purchaseDetails.transport_charges+this.purchaseDetails.loading_charges+this.purchaseDetails.unloading_charges	
 				if(total>0)
 					return total
 				else return 0	
 			},
-			loadCustomers(){
-				return this.$store.getters.getCustomers
+			loadSuppliers(){
+				return this.$store.getters.getSuppliers
 			},
 			LoadItemCategories(){
 				return this.$store.getters.getItemCategories
@@ -392,16 +402,59 @@
 				return item.item_detail_name
 			},
 			ItemCategory(){
-				var item=this.LoadItems.find(item=>{
+				var item=this.LoadItemCategories.find(item=>{
               		return item.item_master_id===this.selectedItemCategoryId
 				})
+				console.log(JSON.stringify(item))
 				return item
 			},
+			Taxes(){
+				var taxes=0
+				if(this.isGst){
+					this.purchaseDetails.items.forEach(item=>{
+						console.log(JSON.stringify(item))
+						taxes+=(item.gst_rate*item.total/100)
+					})
+					console.log(taxes)
+				}
+				return taxes
+			},
 			GST(){
-				return this.RentDetails.taxes/2
+				console.log(this.Taxes/2)
+				return this.Taxes/2
 			},
 			IGST(){
-				return this.RentDetails.taxes
+				return this.Taxes
+			},
+			IsCredit(){
+				if(this.is_credit)
+					return 1
+				else 
+					return 0
+			},
+			LoadCompanies(){
+				return this.$store.getters.getCompanies
+			},
+			Company(){
+				var company=this.LoadCompanies.find(company=>{
+					return company.company_id==this.purchaseDetails.company_id
+				})
+				return company
+			},
+			Supplier(){
+				var supplier=this.loadSuppliers.find(supplier=>{
+					return supplier.ba_id==this.purchaseDetails.ba_id
+				})
+
+				return supplier
+			},
+			isIGST(){
+				
+				if(this.purchaseDetails.company_id>0&&this.purchaseDetails.ba_id>0){
+					return this.Company.statecode != this.Supplier.statecode
+				}
+				else 
+					return 0	
 			}
 		}
 	}

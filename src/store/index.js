@@ -4,13 +4,8 @@ import user from './User/index'
 import supplier from './Supplier/index'
 import customer from './Customer/index'
 import items from './Item/index'
-<<<<<<< HEAD
-import transactions from './Purchase/index'
+import purchase from './Purchase/index'
 import company from './Company'
-=======
-import company from './Company'
-import transactions from './Transactions/index'
->>>>>>> c9aab1ae81709a31db2c614ac5bf92ee150fa7b4
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({
@@ -19,13 +14,8 @@ export const store = new Vuex.Store({
         supplier,
         customer,
         items,
-<<<<<<< HEAD
-        transactions,
+        purchase,
         company
-=======
-        company,
-        transactions
->>>>>>> c9aab1ae81709a31db2c614ac5bf92ee150fa7b4
     },
     state:{
         count:0,
