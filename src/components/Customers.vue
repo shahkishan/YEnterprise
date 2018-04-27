@@ -38,7 +38,6 @@
 			<template slot="no-data">
 			</template>
 		</v-data-table>
-					</v-card>
 			<v-dialog
         v-model="detailDialog"
         fullscreen

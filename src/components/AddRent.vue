@@ -32,8 +32,8 @@
 		<v-layout row wrap>
 			<v-flex xs11 sm2 ml5>
 				<v-select
-					:items="loadCustomers"
-					v-model="rentDetails.ba_id"
+					:items="LoadCustomers"
+					v-model="ba_id"
 					item-value="ba_id"
 					item-text="name"
 					label="Customer"
@@ -44,7 +44,7 @@
 			</v-flex>
 			<v-flex xs11 sm2 ml5>
 				<v-select
-					:items="loadSites"
+					:items="LoadSites"
 					v-model="rentDetails.site_id"
 					item-value="site_id"
 					item-text="site_name"
@@ -96,7 +96,8 @@
 							</v-flex>
 							<v-flex xs12 sm6 md4>
 							</v-flex>
-							<v-spacer></v-spacer>
+					
+	<v-spacer></v-spacer>
 						</v-layout>
 					</v-container>
 				</v-card-text>
@@ -216,6 +217,7 @@
 	import RentDetailsModel from '../models/RentDetails'
 	import Headers from '../models/headers'
 	import TransactionItemModel from '../models/TransactionItemDetails'
+	import Constants from '../Utility/constants'
 	export default {
 		data: () => ({
 			menu: false,
@@ -234,6 +236,7 @@
 			editedIndex: -1,
 			editedItem: TransactionItemModel,
 			rentDetails:RentDetailsModel,
+			ba_id:-1,
 			billTotal:{
 				totalAmt:0,
 				cGST:0,
@@ -468,6 +471,23 @@
 				}
 				else 
 					return 0	
+			},
+			LoadCustomers(){
+				return this.$store.getters.getCustomers;
+			},
+			LoadSites(){
+				// console.log("sites: "+JSON.stringify(this.$store.getters.getSites))
+				var sites = this.$store.getters.getSites
+				var custSites=[]
+				sites.forEach(element=>{
+					console.log(this.ba_id+" "+element.ba_id)
+					if(element.ba_id==this.ba_id){
+						console.log("here")
+						custSites.push(element)
+					}
+				})
+
+				return custSites
 			}
 		}
 	}

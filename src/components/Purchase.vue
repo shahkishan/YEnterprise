@@ -1,5 +1,6 @@
 <template>
 	<v-container fluid grid-list-md>
+	
 		<v-container v-if="!noPurchase">
 		<v-layout>
 
@@ -63,14 +64,18 @@
 			</v-flex>
 		</v-layout>
 
-		<v-layout>
+		
+	</v-container>
+
+	<v-layout>
 			<v-flex xs6 md4><v-btn color="primary" @click.native="index++" v-if="previous">Previous</v-btn></v-flex>
 			<v-flex xs6 md4><v-btn color="primary" @click.native="index--" v-if="next">Next</v-btn></v-flex>
 			<v-flex xs6 md4><v-btn color="primary" @click.native="$router.push('purchase/add')">New</v-btn></v-flex>
 			<v-flex xs6 md4><v-btn color="primary" @click="updatePurchase()">Update</v-btn></v-flex>
 			<v-flex xs6 md4><v-btn color="primary" @click="deletePurchase()">Delete</v-btn></v-flex>
-		</v-layout>
-	</v-container>
+	</v-layout>
+
+	
 	 <v-snackbar
       bottom right
       v-model="snackbar"
@@ -124,7 +129,7 @@
 			updatePurchase(){
 				this.$store.dispatch('setUpdateItem',this.Purchase)
 				console.log(JSON.stringify(this.$store.getters.getCurrentPurchase))
-				this.$router.push('purchase/update')
+				this.$router.push('update')
 			}
 		},
 		computed:{

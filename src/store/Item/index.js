@@ -116,7 +116,7 @@ export default{
         loadItems({commit,getters}){
             axios.get(Item_URL)
                 .then(res=>{
-                    console.log(res.data)
+                    console.log("Items: "+JSON.stringify((res.data)))
                     commit('loadItems',res.data)
                 })
                 .catch(err=>{

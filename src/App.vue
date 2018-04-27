@@ -48,7 +48,8 @@ export default {
     this.$store.dispatch('loadItems')
     this.$store.dispatch('loadCompanies')
 		this.$store.dispatch('loadPurchases')
-
+    this.$store.dispatch('getMiscItems')
+    this.$store.dispatch('loadSites')
   },
   data () {
     return {
