@@ -3,10 +3,9 @@ import vuex from 'vuex'
 import Item from '../../models/Item'
 import ItemCategory from '../../models/ItemCategory'
 import axios from 'axios'
-import Constants from '../../Utility/constants'
-const BASE_URL=Constants.BASE_URL
-const Item_Master_URL=BASE_URL+'itemMaster/'
-const Item_URL=BASE_URL+'itemDetail/'
+import firebase from 'firebase'
+import 'firebase/firestore'
+
 Vue.use(vuex)
 
 export default{
@@ -59,90 +58,85 @@ export default{
         }
     },
     actions:{
-        addNewItemCategory({commit,getters},payload){
-            axios.post(Item_Master_URL,payload)
-                .then(res=>{
-                    console.log(res)
-                    if(res.status==200)
-                        commit('addNewItemCategory',payload)
+        addNewItemCategory({},payload){
+            firebase.firestore().collection('items').add({item_name:payload.item_name,hsncode:payload.hsncode,description:payload.description,gstrate:payload.gstrate})
+                .then(docRef=>{
+                    console.log(docRef.id)
                 })
                 .catch(err=>{
-                    console.log(err)
+                    console.error(err)
                 })
         },
-        loadItemCategories({commit,getters}){
-            axios.get(Item_Master_URL)
-                .then(res=>{
-                    console.log(res.data)
-                    commit('loadItemCategories',res.data)
-                })
-                .catch(err=>{
-                    console.log(err)
-                })
-        },
-        updateItemCategory({commit,getters},payload){
-            axios.put(Item_Master_URL+payload.item_master_id,payload)
-                .then(res=>{
-                    if(res.status==200)
-                        commit('updateItemCategory',payload)
-                })
-                .catch(err=>{
-                    console.log(err)
-                })
-        },
-        deleteItemCategory({commit,getters},payload){
-            axios.delete(Item_Master_URL+payload.item_master_id)
-                .then(res=>{
-                    if(res.status==200)
-                        commit('deleteItemCategory',payload)
-                })
-                .catch(err=>{
-                    console.log(err)
-                })
-        },
+        loadItemCategories({commit}){
+            firebase.firestore().collection('items').orderBy('item_name').onSnapshot(snapshot=>{
+                var items=[]
+                snapshot.forEach(doc=>{
+                    var item=Item.defaultObject
+                    item.item_id=doc.id
+                    item.item_name=doc.data().item_name
+                    item.description=doc.data().description
+                    item.hsncode=doc.data().hsncode
+                    item.gstrate=doc.data().gstrate
+                    firebase.firestore().collection('items').doc(doc.id).collection('subitems').orderBy('subitem_name').onSnapshot(subItemSnapshot=>{
+                        subitems=[]
+                        subItemSnapshot.forEach(subItemDoc=>{
+                            var subitem=Item.SubItem
+                            subitem=subItemDoc.data()
+                            subitem.subitem_id=subItemDoc.id
+                            subitem.item_name=item.item_name
+                            subitems.push(subitem)
+                        })
+                        item.subitems=subitems
+                    })
+                    items.push(item)
 
-
-        addNewItem({commit,getters},payload){
-            axios.post(Item_URL,payload)
-                .then(res=>{
-                    console.log(res)
-                    if(res.status==200)
-                        commit('addNewItem',payload)
+                })
+            })
+        },
+        updateItemCategory({},payload){
+            firebase.firestore().collection('items').doc(payload.item_id).update({item_name:payload.item_name,hsncode:payload.hsncode,description:payload.description,gstrate:payload.gstrate})
+                .then(()=>{
+                    console.log('Updated')
                 })
                 .catch(err=>{
-                    console.log(err)
+                    console.error(err)
                 })
         },
-        loadItems({commit,getters}){
-            axios.get(Item_URL)
-                .then(res=>{
-                    console.log("Items: "+JSON.stringify((res.data)))
-                    commit('loadItems',res.data)
+        deleteItemCategory({},payload){
+            firebase.firestore().collection('items').doc(payload).delete()
+                .then(()=>{
+                    console.log("deleted")
                 })
                 .catch(err=>{
-                    console .log(err)
+                    console.error(err)
                 })
         },
-        updateItem({commit,getters},payload){
-            axios.put(Item_URL+payload.item_detail_id,payload)
-                .then(res=>{
-                    console.log(res)
-                    if(res.status==200)
-                        commit('updateItem',payload)
+        addNewItem({},payload){
+            firebase.firestore().collection('items').doc(payload.item_id).firebase.firestore().collection('items')('subitems').add(payload.subitem)
+                .then(docRef=>{
+                    console.log(docRef.id)
                 })
                 .catch(err=>{
-                    console.log(err)
+                    console.error(err)
                 })
         },
-        deleteItem({commit,getters},payload){
-            axios.delete(Item_URL+payload.item_detail_id)
-                .then(res=>{
-                    if(res.status==200)
-                        commit('deleteItem',payload)
+        updateItem({},payload){
+            firebase.firestore().collection('items').doc(payload.item_id).collection('subitems').doc(payload.subitem.subitem_id).update({subitem_name:payload.subitem.subitem_name,subitem_description:payload.subitem_description})
+                .then(()=>{
+                    console.log("Updated")
                 })
                 .catch(err=>{
-                    console.log(err)
+                    console.error(err)
                 })
+        },
+        deleteItem({},payload){
+          firebase.firestore().collection('items').doc(payload.item_id).collection('subitems').doc(payload.subitem_id).delete()
+            .then(()=>{
+                console.log("deleted")
+            })
+            .catch(err=>{
+                console.error(err)
+            })
         }
     }
 }

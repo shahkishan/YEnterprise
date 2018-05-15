@@ -1,7 +1,7 @@
 export default{
-    item_master_id:0,
-    item_master_name:'',
-    hsn_code:'',
+    item_id:0,
+    item_name:'',
+    hsncode:'',
     description:'',
-    gst_rate:0
+    gstrate:0
 }

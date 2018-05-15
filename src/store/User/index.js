@@ -3,107 +3,102 @@ import Vuex from 'vuex'
 import User from '../../models/User'
 import axios from 'axios'
 import Constants from '../../Utility/constants'
+import firebase from 'firebase'
+import 'firebase/firestore'
 Vue.use(Vuex)
 
 export default{
     state:{
-        isLoggedIn: false,
-        User,
-        user:User,
+        user:null,
         users:[],
-        year:''
     },
     getters: {
-        isLoggedIn: state=> state.isLoggedIn,
-        email:state=>state.email,
-        password:state=>state.password,
-        year:state=>state.year,
-        user:state=>state.User,
+        user:state=>state.user,
         users:state=>state.users
     },
     mutations:{
-        LOGIN_SUCCESS:(state,payload)=>{
-            state.isLoggedIn=payload;
+        userSignIn:(state,payload)=>{
+            var ref=firebase.database().ref('users/'+payload.uid)
+            state.user=Object.assign(this,User)
+            state.user.uid=payload.uid
+            state.user.firstName=ref.firstName
+            state.user.lastName=ref.lastName
+            state.user.role=ref.role
+            state.user.email=payload.email
         },
-        UPDATE_YEAR:(state,year)=>{
-            state.year=year;
+        userSignout:(state,payload)=>{
+            state.user=null
         },
-        getUsers:(state,payload)=>{
+        loadUsers:(state,payload)=>{
             state.users=payload
-        },
-        addUser:(state,user)=>{
-            state.users.push(user)
-        },
-        updateUser:(state,user)=>{
-            var index=state.users.indexOf(user)
-            Object.assign(state.users[index],user)
-        },
-        deleteUser:(state,user)=>{
-            var index=state.users.indexOf(user)
-            state.users.splice(index,1)
         }
-
     },
     actions:{
-        loginSuccess({commit,getters},payload,year){
-            commit("LOGIN_SUCCESS",payload);
-            commit('UPDATE_YEAR',year)
-        },
-
-        loginPage({commit,getters},payload){
-            commit('LOGIN_PAGE',payload);
-        },
-        getUsers({commit,getters}){
-            axios.get(Constants.BASE_URL+"users")
+        userSignIn({commit,dispatch},payload){
+            firebase.auth().signInWithEmailAndPassword(payload.email,payload.password)
                 .then(res=>{
-                    console.log(JSON.parse(JSON.stringify(res)).data)
-                    if(res.status==200){
-                        commit('getUsers',JSON.parse(JSON.stringify(res)).data)
-                    }
-                }).catch(err=>{
-                    console.log(err)
-                })    
-        },
-        addUser({commit,getters},user){
-            axios.post(Constants.BASE_URL+"users",{
-                user
-            }).then(res=>{
-                console.log(res.status)
-                if(res.status==200){
-                    commit('addUser',user)
-                }
-            }).catch(err=>{
-               console.log(err) 
-            })
-           
-        },
-        editUser({commit,getters},user){
-
-            axios.put(Constants.BASE_URL+"users/"+user.user_id,{
-                user
-            }).then(res=>{
-                console.log(res)
-                if(res.status==200){
-                    commit('updateUser',user)
-                }
-            }).catch(err=>{
-               console.log(err) 
-            })
-            if(flag){
-                commit('editUser',user,index)
-            }
-
-        },
-        deleteUser({commit,getters},user){
-            axios.delete(Constants.BASE_URL+"users/"+user.user_id)
-                .then(res=>{
-                    console.log(res)
-                    if(res.status==200){
-                        commit('deleteUser',user)
-                    }
+                    dispatch('setError',false)
+                    commit('userSignIn',res);
                 })
                 .catch(err=>{
-                    console.log(err)
+                    console.log(err.message)
+                    dispatch('setError',true)
+                })
+        },
+        autoSignIn({commit},payload){
+            commit('userSignIn',payload)
+        },
+        logout({commit}){
+            firebase.auth().signOut();
+            commit('userSignout',null)
+        },
+        loadUsers({commit}){
+           
+
+            firebase.firestore().collection('users').orderBy('firstName').onSnapshot(querySnapshot=>{
+                var users=[]
+                querySnapshot.forEach(doc=>{
+                    users.push({uid:doc.id,firstName:doc.data().firstName,lastName:doc.data().lastName,contact:doc.data().contact,email:doc.data().email,role:doc.data().role})
+                })
+
+                commit('loadUsers',users)
+            })
+        },  
+        createUser({commit,getters},user){
+            firebase.auth().createUserWithEmailAndPassword(user.email,user.password)
+                .then(res=>{
+                    firebase.database().ref('users/'+res.uid).set({firstName:user.firstName,lastName:user.lastName,contact:user.contact,email:user.email,role:user.role})
+                    firebase.firestore().collection('users').doc(res.uid).set({firstName:user.firstName,lastName:user.lastName,contact:user.contact,email:user.email,role:user.role,timeStamp:firebase.firestore.FieldValue.serverTimestamp()})
+                        .then(doc=>{
+                            console.log("Document written with reference: "+doc.id)
+                        })
+                        .catch(err=>{
+                            console.error("Error creating document: "+err)
+                        })
+                        
+                })
+                .catch(err=>{
+                    console.log(err.message)
+                })
+        },
+        updateUser({commit,getters},user){
+            // firebase.database().ref('users/'+user.uid).update({firstName:user.firstName,lastName:user.lastName,contact:user.contact,email:user.email,role:user.role})
+            firebase.firestore().collection('users').doc(user.uid).update({firstName:user.firstName,lastName:user.lastName,contact:user.contact,email:user.email,role:user.role,timeStamp:firebase.firestore.FieldValue.serverTimestamp()})
+                .then(docRef=>{
+                    console.log("Document updated with ID: "+docref.id)
+                })
+                .catch(err=>{
+                    console.error("Error updating document: "+err)
+                })
+        },
+        deleteUser({commit,getters},uid){
+            // firebase.database().ref('users/'+uid).remove()
+            firebase.firestore().collection('users').doc(uid).delete()
+                .then(result=>{
+                    console.log("User deleted: "+uid)
+                })
+                .catch(err=>{
+                    console.error("Error deleting User"+ err)
                 })
         }
     }
