@@ -1,12 +1,21 @@
+import Address from './Address'
 export default{
-    company_id:0,
-    name:'',
-    add1:'',
-    add2:'',
-    PIN:'',
-    statecode:'',
-    GSTNo:'',
-    contactno:'',
-    email:''
-  
+    defaultObject:{
+        company_id:'',
+        name:'',
+        contact:'',
+        email:'',
+        gstno:'',
+        address:Object.assign({},Address)
+    },
+
+
+    headers:[
+        {text:'Name',value:'name', sortable: false},
+        {text:'Email',value:'email', sortable: false},
+        {text:'Contact Number',value:'contact', sortable:false},
+        {text:'GST NO',value:'gst', sortable: false},
+
+    ],
+
 }

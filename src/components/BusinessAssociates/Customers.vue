@@ -261,12 +261,12 @@ export default {
 		}
 
 	},
-	created(){
-		this.$store.dispatch('loadCustomers')
-	},
-	beforeDestroy(){
-		this.$store.dispatch('unloadCustomers')
-	},
+	// // created(){
+	// // 	this.$store.dispatch('loadCustomers')
+	// // },
+	// beforeDestroy(){
+	// 	this.$store.dispatch('unloadCustomers')
+	// },
 	methods:{
 		editCustomer(customer){
 			this.customer=customer

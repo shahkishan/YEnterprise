@@ -1,11 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import Compnay from '../../models/Company'
-import axios from 'axios'
-import Constants from '../../Utility/constants'
-const BASE_URL=Constants.BASE_URL
-const MODEL_URL='companyDetails/'
-const URL=BASE_URL+MODEL_URL
+import firebase from 'firebase' 
+import 'firebase/firestore'
 Vue.use(Vuex)
 
 export default{
@@ -16,68 +13,50 @@ export default{
         getCompanies:state=>state.companies
     },
     mutations:{
-        addNewCompany:(state,payload)=>{
-            state.companies.push(payload)
-        },
-
         loadCompanies:(state,payload)=>{
             state.companies=payload
         },
-        updateCompany:(state,payload)=>{
-            var company=state.companies.find(company=>{
-                return company.company_id==payload.company_id
-            })
-            const index=state.companies.indexOf(payload)
-            state.companies.splice(index,1,payload)
-        },
-        deleteCompany:(state,payload)=>{
-            const index=state.companies.indexOf(payload)
-            state.companies.splice(index,1)
-        }
     },
     actions:{
         addNewCompany({commit,getters},payload){
-            axios.post(URL,paylod)
-            .then(res=>{
-                console.log(res)
-                if(res.status==200)
-                commit('addNewCompany',payload)
-            })
-            .catch(err=>{
-                console.log(err)
-            })
+            firebase.firestore().collection('companies').add(payload)
+                .then(docRef=>{
+                    console.log(docRef.id)
+                })
+                .catch(err=>{
+                    console.error(err)
+                })
         },
         loadCompanies({commit,getters})
         {
-            
-            axios.get(URL)
-            .then(res=>{
-                console.log(res.data)
-                commit('loadCompanies',res.data)
-            })
-            .catch(err=>{
-                console.log(err)
+            firebase.firestore().collection('companies').orderBy('name').onSnapshot(snapshot=>{
+                var companies=[]
+                snapshot.forEach(doc=>{
+                    var company={}
+                    company=doc.data()
+                    company.company_id=doc.id
+                    companies.push(company)
+                })
+                commit('loadCompanies',companies)
             })
         },
         updateCompany({commit,getters},payload){
-            axios.put(URL+payload.company_id,payload)
-            then(res=>{
-                if(res.status==200)
-                commit('updateCompany',payload)
-            })
-            .catch(err=>{
-                console.log(err)
-            })
+            firebase.firestore().collection('companies').doc(payload.company_id).update(payload.details)
+                .then(()=>{
+                    console.log("updated")
+                })
+                .catch(err=>{
+                    console.error(err)
+                })
         },
         deleteCompany({commit,getters},payload){
-            axios.delete(URL+payload.company_id)
-            .then(res=>{
-                if(res.status==200)
-                  commit('deleteCompany',payload)
-            })
-            .catch(err=>{
-                console.log(err)
-            })
+            firebase.firestore().collection('companies').doc(payload).delete()
+                .then(()=>{
+                    console.log("deleted")
+                })
+                .catch(err=>{
+                    console.error(err)
+                })
         }
     }
 

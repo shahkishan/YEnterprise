@@ -9,7 +9,7 @@
 				></v-switch>
 			</v-flex>
 			<v-flex xs2>
-				<v-select :items="LoadCompanies" label="Company" v-model="purchaseDetails.company_id" item-value="company_id" item-text="name" :rules="[rules.select]"/>
+				<v-select :items="LoadCompanies" label="Company" v-model="selectedCompany" item-text="name" :rules="[rules.select]"/>
 			</v-flex>
 		</v-layout>
 		
@@ -32,8 +32,7 @@
 		<v-flex xs11 sm2 ml5>
 			<v-select
 				:items="loadSuppliers"
-				v-model="purchaseDetails.ba_id"
-				item-value="ba_id"
+				v-model="selectedSupplier"
 				item-text="name"
 				label="Supplier"
 				autocomplete
@@ -44,10 +43,10 @@
 
 		<v-layout row wrap>
 			<v-flex xs11 sm2 ml4>
-				<v-select :items="LoadItemCategories" v-model="selectedItemCategoryId" item-value="item_master_id" item-text="item_master_name" label="Item Category" autocomplete required :rules="[rules.itemSelect]"></v-select>
+				<v-select :items="LoadItems" v-model="selectedItem" item-text="item_name" label="Item" autocomplete required :rules="[rules.itemSelect]"></v-select>
 			</v-flex>
 			<v-flex xs11 sm2 ml4>
-				<v-select :items="LoadItems" v-model="selectedItemId" item-value="item_detail_id" item-text="item_detail_name" label="Item" autocomplete required :rules="[rules.itemSelect]"></v-select>
+				<v-select :items="LoadSubItems" v-model="selectedSubItem" item-text="subitem_name" label="SubItem" autocomplete required :rules="[rules.itemSelect]"></v-select>
 			</v-flex>
 			<v-flex xs11 sm2>
 				<v-text-field label="Quantity" name="quantity" id="quantity" mask="#########" v-model.number="editedItem.quantity" required :rules="[rules.required]" />
@@ -70,10 +69,10 @@
 					<v-container grid-list-md>
 						<v-layout wrap>
 							<v-flex xs12 sm6 ml4>
-								<v-select :items="LoadItemCategories" v-model="selectedItemCategoryId" item-value="item_master_id" item-text="item_master_name" label="Item Category" autocomplete required :rules="[rules.itemSelect]"></v-select>
+								<v-select :items="LoadItems" v-model="selectedItem" item-text="item_name" label="Item" autocomplete required :rules="[rules.itemSelect]"></v-select>
 							</v-flex>
 							<v-flex xs12 sm6 ml4>
-								<v-select :items="LoadItems" v-model="selectedItemId" item-value="item_detail_id" item-text="item_detail_name" label="Item" autocomplete required :rules="[rules.itemSelect]"></v-select>
+								<v-select :items="LoadSubItems" v-model="selectedSubItem" item-text="subitem_name" label="Item" autocomplete required :rules="[rules.itemSelect]"></v-select>
 							</v-flex>					
 							<v-flex xs12 sm6 md4>
 								<v-text-field label="Quantity" mask="#########" v-model.number="editedItem.quantity" required :rules="[rules.required]"></v-text-field>
@@ -97,9 +96,9 @@
 		<v-flex xs12>
 		<v-data-table :headers="transactionItemHeaders" :items="purchaseDetails.items" hide-actions class="elevation-1" mb2>
 			<template slot="items" slot-scope="props">
-				<td>{{ props.item.item_master_name }}</td>
-				<td>{{ props.item.item_detail_name }}</td>
-				<td class="text-xs-left">{{ props.item.hsn_code }}</td>
+				<td>{{ props.item.item_name }}</td>
+				<td>{{ props.item.subitem_name }}</td>
+				<td class="text-xs-left">{{ props.item.hsncode }}</td>
 				<td class="text-xs-left">{{ props.item.quantity }}</td>
 				<td class="text-xs-left">{{ props.item.rate }}</td>
 				<td class="text-xs-left">{{ props.item.total }}</td>
@@ -174,7 +173,7 @@
 					<v-flex xs7><v-card-text>SGST: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ GST }}</v-card-text></v-flex>
 				</v-layout>
 				<v-layout row wrap v-if="purchaseDetails.transport_charges>0">
-					<v-flex xs7><v-card-text>Transport: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ purchaseDetails.transport }}</v-card-text></v-flex>
+					<v-flex xs7><v-card-text>Transport: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ purchaseDetails.transport_charges }}</v-card-text></v-flex>
 				</v-layout>
 				<v-layout row wrap v-if="purchaseDetails.loading_charges>0">
 					<v-flex xs7><v-card-text>Loading Charges: </v-card-text></v-flex> <v-flex xs2><v-card-text>₹{{ purchaseDetails.loading_charges }}</v-card-text></v-flex>
@@ -182,8 +181,9 @@
 				<v-layout row wrap v-if="purchaseDetails.unloading_charges>0">
 					<v-flex xs7><v-card-text>Loading Charges: </v-card-text></v-flex> <v-flex xs2><v-card-text>₹{{ purchaseDetails.unloading_charges }}</v-card-text></v-flex>
 				</v-layout>
+				<v-divider></v-divider>
 				<v-layout row wrap>
-					<v-flex xs7><v-card-text>TOTAL: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ netTotal }}</v-card-text></v-flex>
+					<v-flex xs7><v-card-text>Total: </v-card-text></v-flex> <v-flex xs5><v-card-text>₹{{ netTotal }}</v-card-text></v-flex>
 				</v-layout>
 				<v-flex xs12><v-btn color="blue darken-1" flat @click.native="extraDetails">Extra details</v-btn></v-flex>
 			</v-card>
@@ -200,9 +200,11 @@
 <!--To be edited-->
 <script>
 	// import ItemModel from "../models/Item"
-	import PurchaseDetailsModel from '../../../models/PurchaseDetails'
-	import Headers from '../../../models/headers'
+	import PurchaseDetails from '../../../models/PurchaseDetails'
+	import Item from '../../../models/Item'
 	import TransactionItemModel from '../../../models/TransactionItemDetails'
+	import Company from '../../../models/Company'
+	import Supplier from '../../../models/Supplier'
 	export default {
 		data: () => ({
 			menu: false,
@@ -213,14 +215,16 @@
 			transport:'',
 			isGst:true,
 			is_credit:false,
-			totalGST:0,
-			transactionItemHeaders:Headers.transactionItems,
+			isEdit:false,
+			transactionItemHeaders:Item.headers.transactionItems,
 			items: [],
-			selectedItemId:0,
-			selectedItemCategoryId:0,
+			selectedItem:Object.assign({},Item.defaultObject),
+			selectedSubItem:Object.assign({},Item.SubItem),	
+			selectedCompany:Object.assign({},Company.defaultObject),
+			selectedSupplier:Object.assign({},Supplier.defaultObject),
 			editedIndex: -1,
-			editedItem: TransactionItemModel,
-			purchaseDetails:PurchaseDetailsModel,
+			editedItem: Object.assign({},Item.transactionItem),
+			purchaseDetails:Object.assign({},PurchaseDetails),
 			billTotal:{
 				totalAmt:0,
 				cGST:0,
@@ -230,17 +234,13 @@
 				discount:0,
 				net:0,
 			},
-			supplier:{
-				id:1,
-				name:''
-			},
 			rules: {
           		required: (value) => !!value || 'Required.',
         		// quantity: (value) =>  !!value || 'Quantity cannot be zero.',
 				// rate:(value)=>  !!value || 'Rate cannot be zero.',
 				select: (value)=> value>0||"Required.",
 				item: (value)=> !!value.name||"Required.",
-				itemSelect: (value)=> value>0 || 'Required'
+				itemSelect: (value)=> value!=null || 'Required'
         	}
 		}),
 
@@ -262,20 +262,24 @@
 			},
 
 			editItem(item) {
+				this.isEdit=true
 				this.editedIndex = this.purchaseDetails.items.indexOf(item)
-				this.editedItem = Object.assign({}, TransactionItemModel)
-				this.editedItem.item_name=item.item_master_name
-				this.editedItem.item_detail_id=item.item_detail_id
-				this.editedItem.rate=item.rate
-				this.editedItem.quantity=item.quantity
-				this.selectedItemId=item.item_detail_id
-				this.selectedItemCategoryId=item.item_master_id
+				this.editedItem = Object.assign({}, item)
+
+				this.selectedItem=this.LoadItems.find(obj=>{
+					return item.item_id===obj.item_id
+				})
+
+				this.selectedSubItem=this.LoadSubItems.find(obj=>{
+					return obj.subitem_id===item.subitem_id;
+				})
+
 				this.dialog = true
 			},
 
 			deleteItem(item) {
-				const index = this.items.indexOf(item)
-				confirm('Are you sure you want to delete this item?') && this.items.splice(index, 1)
+				const index = this.purchaseDetails.items.indexOf(item)
+				this.items.splice(index, 1)
 			},
 
 			close() {
@@ -288,33 +292,26 @@
 			},
 
 			save() {
-				this.totalGST+=this.itemGST
-				var itemName=this.ItemName
-				console.log(this.ItemCategory)
 				this.editedItem.total=this.total
 				var item={
-					item_detail_id:this.selectedItemId,
-					item_detail_name:itemName,
-					item_master_name:this.ItemCategory.item_master_name,
+					item_id:this.selectedItem.item_id,
+					subitem_id:this.selectedSubItem.subitem_id,
+					item_name:this.selectedItem.item_name,
+					subitem_name:this.selectedSubItem.subitem_name,
 					quantity:this.editedItem.quantity,
 					rate:this.editedItem.rate,
 					total:this.total,
-					hsn_code:this.ItemCategory.hsn_code,
-					gst_rate:this.ItemCategory.gst_rate
+					hsncode:this.selectedItem.hsncode,
+					gstrate:this.selectedItem.gstrate
 				}
-				console.log("here: "+JSON.stringify(item))
-				if(item.item_detail_name.length>0 && item.rate>0 && item.quantity>0){
-					
-					
+				if(item.subitem_name.length>0 && item.rate>0 && item.quantity>0){
 					
 					if (this.editedIndex > -1) {
 						Object.assign(this.purchaseDetails.items[this.editedIndex], item)
 					} else {
-						console.log(this.editedItem.total+" "+this.total)
 						this.purchaseDetails.items.push(item)
-						// console.log(this.supplier.id)
 					}
-					console.log(this.billTotalAmt)
+					this.purchaseDetails.taxes=this.Taxes
 					this.clear()
 					this.close()
 				}
@@ -325,15 +322,15 @@
 				this.purchaseDetails.items.push(this.editedItem)
 			},
 			saveTransaction(){
-				this.purchaseDetails.amount=this.billTotalAmt
-				// this.purchaseDetails.net=this.netTotal
-				// console.log("{\"date\":\""+this.purchaseDetails.date+"\",\"invoice_no\"\":"+this.purchaseDetails.invoiceNo+"\",\"supplier_id\":"+this.purchaseDetails.supplier.id+",\"items\":"+JSON.stringify(this.purchaseDetails.items)+",\"isGst\":"+isGst.toString()+"}")
-				//  console.log("purchase details: ")
-				this.purchaseDetails.is_credit=this.IsCredit
-				// this.purchaseDetails.items=this.items	
-				console.log(JSON.stringify(this.purchaseDetails))	
 				
-				this.$store.dispatch('addPurchase',this.purchaseDetails)
+				this.purchaseDetails.amount=this.billTotalAmt
+				this.purchaseDetails.is_credit=this.IsCredit
+				this.purchaseDetails.supplier_id=this.selectedSupplier.supplier_id
+				this.purchaseDetails.company_id=this.selectedCompany.company_id
+				
+				var result=this.$store.dispatch('addPurchase',this.purchaseDetails)
+				if(result)
+					this.$router.push('/purchase')
 			},
 			extraDetails(){
 				this.extraDetailsDialog=true
@@ -343,10 +340,11 @@
 			},
 			clear(){
 				this.editedItem=Object.assign({},TransactionItemModel)
-				this.selectedItemId=0
+				this.selectedItem=Object.assign({},Item.defaultObject)
+				this.selectedSubItem=Object.assign({},Item.SubItem)
 				this.editedItem.price=''
-				this.editedItem.quantity='0'
-				this.selectedItemCategoryId=0
+				this.editedItem.quantity=''
+				this.isEdit=false
 			}
 
 		},
@@ -358,9 +356,7 @@
 				var billTotal=0
 				this.purchaseDetails.items.forEach(function(item){
 					billTotal+=item.total
-					console.log("total: "+item.total)
 				})
-				console.log(billTotal)
 				if(billTotal>0)  
 					return billTotal
 				else 
@@ -374,7 +370,7 @@
 					return 0
 			},
 			netTotal(){
-				var total=this.billTotalAmt+this.purchaseDetails.taxes+this.purchaseDetails.transport_charges+this.purchaseDetails.loading_charges+this.purchaseDetails.unloading_charges	
+				var total=this.billTotalAmt+this.Taxes+this.purchaseDetails.transport_charges+this.purchaseDetails.loading_charges+this.purchaseDetails.unloading_charges	
 				if(total>0)
 					return total
 				else return 0	
@@ -382,44 +378,28 @@
 			loadSuppliers(){
 				return this.$store.getters.getSuppliers
 			},
-			LoadItemCategories(){
-				return this.$store.getters.getItemCategories
-			},
 			LoadItems(){
-
-				var items=[]
-				this.$store.getters.getItems.forEach(element => {
-					if(element.item_master_id===this.selectedItemCategoryId)
-						items.push(element)
-				});
-				return items
+				return this.$store.getters.getItems
 			},
 			ItemName(){
-				var item=this.LoadItems.find(item=>{
-              		return item.item_detail_id===this.selectedItemId
-				})
-				return item.item_detail_name
+				
+				return this.selectedItem.item_name
 			},
-			ItemCategory(){
-				var item=this.LoadItemCategories.find(item=>{
-              		return item.item_master_id===this.selectedItemCategoryId
-				})
-				console.log(JSON.stringify(item))
-				return item
+			LoadSubItems(){
+				if(this.LoadItems){
+					return this.selectedItem.subitems;
+				}
 			},
 			Taxes(){
 				var taxes=0
 				if(this.isGst){
 					this.purchaseDetails.items.forEach(item=>{
-						console.log(JSON.stringify(item))
-						taxes+=(item.gst_rate*item.total/100)
+						taxes+=(item.gstrate*item.total/100)
 					})
-					console.log(taxes)
 				}
 				return taxes
 			},
 			GST(){
-				console.log(this.Taxes/2)
 				return this.Taxes/2
 			},
 			IGST(){
@@ -448,12 +428,10 @@
 				return supplier
 			},
 			isIGST(){
-				
-				if(this.purchaseDetails.company_id>0&&this.purchaseDetails.ba_id>0){
-					return this.Company.statecode != this.Supplier.statecode
-				}
+				if(this.selectedCompany!={} && this.selectedSupplier!={})
+					return this.selectedCompany.address.statecode != this.selectedSupplier.address.statecode
 				else 
-					return 0	
+					return true	
 			}
 		}
 	}

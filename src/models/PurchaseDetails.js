@@ -1,9 +1,9 @@
 // import Supplier from './Supplier'
 export default{
-
+    purchase_id:'',
     date:null,
     invoice_no:'',
-    ba_id:0,
+    supplier_id:0,
     company_id:0,
     items: [],  
     amount:0,

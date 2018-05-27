@@ -1,60 +1,16 @@
 import Vue from 'vue'
 import vuex from 'vuex'
-import PurchaseDetailsModel from '../../models/PurchaseDetails'
-import axios from 'axios'
-import Constants from '../../Utility/constants'
-
-const URL = Constants.BASE_URL+"purchase/"
-
+import PurchaseDetails from '../../models/PurchaseDetails'
+import firebase from 'firebase'
+import 'firebase/firestore'
 export default{
     state:{
         purchases:[],
-        purchase:PurchaseDetailsModel
+        purchase:PurchaseDetails
     },
     mutations:{
         loadPurchases(state,payload){
-            // state.purchases=payload
-            let prevId=0
-            let cnt=-1
-            console.log(payload)
-            payload.forEach(element => {
-                var item={
-                    item_detail_id:element.item_detail_id,
-                    item_detail_name:element.item_detail_name,
-                    item_master_id:element.item_master_id,
-                    item_master_name:element.item_master_name,
-                    hsn_code:element.hsn_code,
-                    quantity:element.quantity,
-                    rate:element.rate,
-                    total: element.rate * element.quantity
-                }
-                
-                if(prevId!=element.purchase_master_id){
-                    var purchase_master={
-                        purchase_master_id:element.purchase_master_id,
-                        date:element.date,
-                        invoice_no: element.invoice_no,
-                        ba_id:element.ba_id,
-                        ba_name: element.ba_name,
-                        company_id:element.company_id,
-                        company_name:element.company_name,
-                        amount:element.amount,
-                        taxes:element.taxes,
-                        loading_charges:element.loading_charges,
-                        unloading_charges:element.unloading_charges,
-                        transport_charges:element.transport_charges,
-                        is_credit:element.is_credit,
-                        items:[]    
-                    }
-                    state.purchases.push(purchase_master)
-                    prevId=element.purchase_master_id
-                    cnt++
-                    console.log(purchase_master.ba_id)
-                }
-                state.purchases[cnt].items.push(item)
-                // console.log(JSON.stringify(state.purchases[cnt].items))
-            });
-
+            state.purchases=payload
         },
         deletePurchase(state,payload){
             var purchase=state.purchases.find(purchase=>{
@@ -70,54 +26,90 @@ export default{
     },
     actions:{
 
-        loadPurchases({commit,getters,dispatch}){
-            axios.get(URL)
-                .then(res=>{
-                    console.log(res.data)
-                    commit('loadPurchases',res.data)
+        loadAllPurchases({commit,getters,dispatch}){
+                firebase.firestore().collection('purchases').orderBy('date').onSnapshot(snapshot=>{
+                    var purchases=[]
+                    snapshot.forEach(doc=>{
+                        var purchase=Object.assign({},PurchaseDetails)
+                        purchase=doc.data()
+                        purchase.purchase_id=doc.id
+                        purchases.push(purchase)
+                    })
+                    commit('loadPurchases',purchases)
                 })
-                .catch(err=>{
-                    console.log(err)
+        },
+        loadFilteredPurchases({commit},payload){
+            firebase.firestore().collection('purchases').where('company_id',"==",payload).orderBy('date').onSnapshot(snapshot=>{
+                var purchases=[]
+                snapshot.forEach(doc=>{
+                    var purchase=Object.assign({},PurchaseDetails)
+                    purchase=doc.data()
+                    purchase.purchase_id=doc.id
+                    purchases.push(purchase)
                 })
+                commit('loadPurchases',purchases)
+            })
         },
 
         addPurchase({commit,getters,dispatch},payload){
-            axios.post(URL,payload)
-                .then(res=>{
-                    console.log(payload)
-                    dispatch('loadPurchases')
+            delete payload.purchase_id
+
+            payload.items.forEach(item=>{
+                firebase.firestore().collection('items').doc(item.item_id).collection('subitems').where('subitem_id','==',item.subitem_id).get(snapshot=>{
+                    var subitem=snapshot.data()
+                    subitem.quantity+=item.quantity
+                    firebase.firestore().collection('items').doc(item.item_id).collection('subitems').doc(item.subitem_id).update(subitem)
+                        .then(()=>{
+                            console.log('qty')
+                        })
+                        .catch(err=>{
+                            console.error(err)
+                        })
+                })
+            })
+
+            firebase.firestore().collection('purchases').add(payload)
+                .then(docRef=>{
+                    console.log(docRef.id)
+                    
+                    
+
+                    return true
                 })
                 .catch(err=>{
-                    console.log(err)
-                    console.log(payload)
+                    console.error(err)
+                    return false
                 })
         },
 
         deletePurchase({commit,getters,dispatch},id){
-            var x=this
-            axios.delete(URL+id)
-                .then(res=>{
-                    if(res.status==200){
-                        commit('deletePurchase',id)
-                    }
+            firebase.firestore().collection('purchases').doc(id).delete()
+                .then(()=>{
+                    console.log("deleted")
+                    return true
                 })
                 .catch(err=>{
-                    console.log(err)
+                    console.error(err)
+                    return false
                 })
         },
         setUpdateItem({commit,getters},payload){
             commit('setUpdateItem',payload)
         },
         updatePurchase({commit,getters},payload){
-            axios.put(URL+payload.purchase_master_id,payload)
-                .then(res=>{
-                    if(res.status==200)
-                        console.log('success')
+            var id=payload.purchase_id
+            delete payload.purchase_id
+
+            firebase.firestore().collection('purchases').doc(id).update(payload)
+                .then(()=>{
+                    console.log("updated")
+                    return true
                 })
                 .catch(err=>{
-                    console.log(err)
+                    console.error(err)
+                    return false
                 })
-            }
+        }
     },
     getters:{
         getPurchases:state=>state.purchases,

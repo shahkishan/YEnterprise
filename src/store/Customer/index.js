@@ -50,11 +50,7 @@ export default{
                             })
                             customer.sites=sites
                     })
-                        // .then(sitesSnapshot=>{
-                            
-                            
-                        // })
-                        customers.push(customer)
+                    customers.push(customer)
                 })
                 commit('loadCustomers',customers)
             })
