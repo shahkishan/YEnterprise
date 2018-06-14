@@ -13,10 +13,15 @@
 		<v-toolbar app :clipped-left="clipped" v-if="!myToolbar">
 			<v-toolbar-side-icon @click.stop="drawer = !drawer" class="hidden-sm-and-up "></v-toolbar-side-icon>
 			
-			<v-toolbar-title v-text="title" :to="{name:'Dashboard'}" style="color:#1976D2"></v-toolbar-title>
+			<v-toolbar-title>
+					<span style="color:#1976D2">{{title}}</span>
+			</v-toolbar-title>
 			<v-spacer></v-spacer>
 
 			<v-toolbar-items class="hidden-xs-only">
+				<v-btn flat :to="{name:'Dashboard'}">
+					<span style="color:#1976D2">Home</span>
+				</v-btn>
 				<v-btn flat v-for="(item) in items" :key="item.title" :to="item.link">
 					<span style="color:#1976D2">{{item.title}}</span>
 				</v-btn>
@@ -43,6 +48,9 @@ export default {
 		this.$store.dispatch('loadItems')
 		this.$store.dispatch('loadCompanies')
 		this.$store.dispatch('loadAllPurchases')
+		this.$store.dispatch('LoadAllRents')
+
+
   	},
   	data () {
     	return {
@@ -80,13 +88,26 @@ export default {
 			else {
 				return true	
 			}
-		}
+		},
+		isUserLoggedIn(){
+				firebase.auth().onAuthStateChanged(user=>{
+					if(!user){
+						this.$router.push('login')	
+					}
+				})
+			}
 	},
 	methods:{
 		logout(){
 			this.$store.dispatch('logout')
 		}
-	}
+	},
+	watch:{
+			isUserLoggedIn(){
+				if(!this.isUserLoggedIn)
+					this.$router.push('login')	
+			}	
+		}
 
 	}
 </script>

@@ -15,7 +15,11 @@ import Rent from '@/components/Products/Rent/Rent'
 import MiscItems from '@/components/General/MiscItems'
 import UpdatePurchase from '@/components/Products/Purchase/UpdatePurchase'
 import AddRent from '@/components/Products/Rent/AddRent'
-Vue.use(Router)
+import UpdateRent from '@/components/Products/Rent/UpdateRent'
+
+import PurchaseNew from '@/components/Products/Purchase/PurchaseNew'
+import RentNew from '@/components/Products/Rent/RentNew'
+import Invoice from '@/components/Products/Rent/Invoice'
 
 Vue.use(Router)
 
@@ -96,7 +100,31 @@ export default new Router({
       path:'/rent/add',
       name:'Add Rent',
       component: AddRent
+    },
+    {
+      path:'/rent/:id/update',
+      name:'Update Rent',
+      component:UpdateRent,
+      props:true
+    },
+
+
+    {
+      path:'/purchasenew',
+      name:'New Purchase',
+      component: PurchaseNew
+    },
+    {
+      path:'/rentnew',
+      name:'New Rent',
+      component: RentNew
+    },
+    {
+      path:'/invoice',
+      name:'Invoice',
+      component:Invoice
     }
+
 
   ],
   mode:'history'

@@ -22,6 +22,7 @@ export default{
 		subitem_id:0,
 		subitem_name:'',
 		item_name:'',
+		item_id:'',
 		quantity: '',
 		rate: '',
 		hsncode:''

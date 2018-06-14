@@ -16,6 +16,7 @@ Vue.prototype.$http = window.axios
 Vue.use(Vuetify)
 Vue.use(Vuex)
 Vue.config.productionTip = false
+Vue.prototype.$eventHub = new Vue()
 
 /* eslint-disable no-new */
 var vm=new Vue({

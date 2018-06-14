@@ -259,6 +259,7 @@
 		methods: {
 			initialize() {
 				this.items = []
+				this.purchaseDetails.items=[]
 			},
 
 			editItem(item) {
@@ -327,10 +328,11 @@
 				this.purchaseDetails.is_credit=this.IsCredit
 				this.purchaseDetails.supplier_id=this.selectedSupplier.supplier_id
 				this.purchaseDetails.company_id=this.selectedCompany.company_id
-				
+				this.purchaseDetails.supplier_name=this.selectedSupplier.name
+				this.purchaseDetails.total=this.netTotal
 				var result=this.$store.dispatch('addPurchase',this.purchaseDetails)
 				if(result)
-					this.$router.push('/purchase')
+					this.$router.push('/purchasenew')
 			},
 			extraDetails(){
 				this.extraDetailsDialog=true

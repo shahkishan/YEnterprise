@@ -4,6 +4,7 @@ export default{
     date:null,
     invoice_no:'',
     supplier_id:0,
+    supplier_name:'',
     company_id:0,
     items: [],  
     amount:0,
@@ -11,5 +12,4 @@ export default{
     transport_charges:0,
     loading_charges:0,
 	unloading_charges:0,
-    is_credit:false
 }

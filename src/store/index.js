@@ -9,6 +9,7 @@ import company from './Company'
 import rent from './Rent/index'
 import sites from './Site/index'
 import shared from './Shared'
+import dispatch from './Dispatch'
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({
@@ -21,7 +22,8 @@ export const store = new Vuex.Store({
         company,
         rent,
         sites,
-        shared
+        shared,
+        dispatch
     },
     state:{
         count:0,

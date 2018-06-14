@@ -37,13 +37,14 @@
 				</v-card>
 			</v-flex>
 			<v-flex d-flex xs12 md3 sm6 pr-3 mt-5 mb-3>
-				<v-card dark color="teal darken-2" height="200px" width="90%" raised hover="" class="item">
+				
+				<v-card dark color="blue-grey darken-2" height="200px" width="100%" raised hover="" class="item" :to="{path:'/items'}">
 					<svg class="myIcon" viewBox="0 0 24 24">
-						<path fill="#ffffff" d="M8,3H18L17,5H13.74C14.22,5.58 14.58,6.26 14.79,7H18L17,9H15C14.75,11.57 12.74,13.63 10.2,13.96V14H9.5L15.5,21H13L7,14V12H9.5V12C11.26,12 12.72,10.7 12.96,9H7L8,7H12.66C12.1,5.82 10.9,5 9.5,5H7L8,3Z"
+						<path fill="#ffffff" d="M9,2V8H11V11H5C3.89,11 3,11.89 3,13V16H1V22H7V16H5V13H11V16H9V22H15V16H13V13H19V16H17V22H23V16H21V13C21,11.89 20.11,11 19,11H13V8H15V2H9Z"
 						/>
 					</svg>
 					<v-card-text>
-						<h2>Accounts</h2>
+						<h2>Items</h2>
 					</v-card-text>
 				</v-card>
 			</v-flex>
@@ -52,18 +53,17 @@
 
 		<v-layout raw wrap pl-5 pr-5>
 			<v-flex d-flex xs12 md3 sm6 pr-3 mb-3>
-				<v-card dark color="blue-grey darken-2" height="200px" width="100%" raised hover="" class="item">
+				<v-card dark color="teal darken-2" height="200px" width="90%" raised hover="" class="item" :to="{path:'/purchasenew'}">
 					<svg class="myIcon" viewBox="0 0 24 24">
-						<path fill="#ffffff" d="M9,2V8H11V11H5C3.89,11 3,11.89 3,13V16H1V22H7V16H5V13H11V16H9V22H15V16H13V13H19V16H17V22H23V16H21V13C21,11.89 20.11,11 19,11H13V8H15V2H9Z"
-						/>
+    					<path fill="#ffffff" d="M5.5,21C4.72,21 4.04,20.55 3.71,19.9V19.9L1.1,10.44L1,10A1,1 0 0,1 2,9H6.58L11.18,2.43C11.36,2.17 11.66,2 12,2C12.34,2 12.65,2.17 12.83,2.44L17.42,9H22A1,1 0 0,1 23,10L22.96,10.29L20.29,19.9C19.96,20.55 19.28,21 18.5,21H5.5M12,4.74L9,9H15L12,4.74M12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17A2,2 0 0,0 14,15A2,2 0 0,0 12,13Z" />
 					</svg>
 					<v-card-text>
-						<h2>Product</h2>
+						<h2>Purchases</h2>
 					</v-card-text>
 				</v-card>
 			</v-flex>
 			<v-flex xs12 md3 sm6 pr-3 mb-3>
-				<v-card dark color="blue-grey lighten-1" height="200px" width="100%" raised hover="" class="item">
+				<v-card dark color="blue-grey lighten-1" height="200px" width="100%" raised hover="" class="item" :to="{path:'/dashboard'}">
 					<svg class="myIcon" viewBox="0 0 24 24">
 						<path fill="#ffffff" d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M15,18V16H6V18H15M18,14V12H6V14H18Z"
 						/>
@@ -74,7 +74,7 @@
 				</v-card>
 			</v-flex>
 			<v-flex d-flex xs12 md3 sm6 pr-3 mb-3>
-				<v-card dark color="deep-orange accent-2" height="200px" width="100%" raised hover="" class="item">
+				<v-card dark color="deep-orange accent-2" height="200px" width="100%" raised hover="" class="item" :to="{path:'/rentnew'}">
 					<svg class="myIcon" viewBox="0 0 24 24">
 						<path fill="#ffffff" d="M6,2H18V8H18V8L14,12L18,16V16H18V22H6V16H6V16L10,12L6,8V8H6V2M16,16.5L12,12.5L8,16.5V20H16V16.5M12,11.5L16,7.5V4H8V7.5L12,11.5M10,6H14V6.75L12,8.75L10,6.75V6Z"
 						/>
@@ -84,7 +84,21 @@
 					</v-card-text>
 				</v-card>
 			</v-flex>
-			<v-flex d-flex xs12 md3 sm6 pr-3 mb-3>
+		<v-flex d-flex xs12 md3 sm6 pr-3 mb-3>
+				<v-card dark color="brown lighten-1" height="200px" width="100%" raised hover="" class="item" :to="{path:'/dashboard'}">
+					<svg class="myIcon" viewBox="0 0 24 24">
+   						 <path fill="#ffffff" d="M9,14V8H5L12,1L19,8H15V14H9M5,18V16H19V18H5M19,20H5V22H19V20Z" />
+					</svg>
+
+					<v-card-text>
+						<h3>Dispatch</h3>
+					</v-card-text>
+				</v-card>
+		</v-flex>
+
+
+			</v-flex>
+			<!-- <v-flex d-flex xs12 md3 sm6 pr-3 mb-3>
 				<v-card dark color="secondary" height="200px" width = "100%" raised hover="" class="item">
 					<svg class="myIcon" viewBox="0 0 24 24">
 						<path fill="#ffffff" d="M12,16L19.36,10.27L21,9L12,2L3,9L4.63,10.27M12,18.54L4.62,12.81L3,14.07L12,21.07L21,14.07L19.37,12.8L12,18.54Z" />
@@ -93,7 +107,7 @@
 						<h3>Reports</h3>
 					</v-card-text>
 				</v-card>
-			</v-flex>
+			</v-flex> -->
 		</v-layout>
 	</v-container>
 </template>

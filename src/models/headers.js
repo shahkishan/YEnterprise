@@ -43,5 +43,82 @@ export default{
             value: 'total',
             sortable: false
         }
+    ],
+    purchase:[
+        {
+            text:'No.',
+            sortable:false,
+            value:null,
+        },
+        {
+            text:'Invoice number',
+            sortable:true,
+            value:'invoice_no'
+        },
+        {
+            text:'Supplier',
+            sortable:true,
+            value:'supplier_name'
+        },
+        {
+            text: 'Date',
+            sortable:true,
+            value:'date'
+        },
+        {
+            text:'Amount',
+            sortable:true,
+            value:'amount'
+        }
+    ],
+    rent:[
+        {
+            text:'No.',
+            sortable:false,
+            value:null,
+        },
+        {
+            text:'Invoice number',
+            sortable:true,
+            value:'invoice_no'
+        },
+        {
+            text:'Customer',
+            sortable:true,
+            value:'customer_name'
+        },
+        {
+            text:'Site',
+            sortable:true,
+            value:'site_name'
+        },
+        {
+            text: 'Date',
+            sortable:true,
+            value:'date'
+        },
+        {
+            text:'Amount',
+            sortable:true,
+            value:'amount'
+        }
+    ],
+    dispatchItemHeaders:[
+        {
+            text: 'Item',
+            sortable: false,
+        },
+        {
+            text: 'Sub Item',
+            sortable: false,
+        },
+        {
+            text: 'Quantity left to dispatch',
+            sortable: false
+        },
+        {
+            text: 'Quantity to dispatch',
+            sortable: false
+        }
     ]
 }

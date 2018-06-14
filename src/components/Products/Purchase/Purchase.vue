@@ -130,7 +130,7 @@
 									<v-card-text>₹{{ Purchase.unloading_charges }}</v-card-text>
 								</v-flex>
 							</v-layout>
-							<v-divider></v-divider>
+							<hr style="border: 1px solid #3d3d3d; margin-left: 5%; margin-right: 5%;"/>
 							<v-layout row wrap>
 								<v-flex xs7>
 									<v-card-text>Total: </v-card-text>
@@ -213,7 +213,7 @@
 		methods: {
 
 			deletePurchase(){
-				var res=this.$store.dispatch('deletePurchase',this.Purchase.purchase_id)
+				var res=this.$store.dispatch('deletePurchase',this.Purchase)
 				if(res)
 					this.snackbar=true
 				this.deleteDialog=false

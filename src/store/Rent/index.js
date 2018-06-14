@@ -1,85 +1,187 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import Rent from '../../models/RentDetails'
+import RentDetails from '../../models/RentDetails'
 import axios from 'axios'
 import Constants from '../../Utility/constants'
-const BASE_URL=Constants.BASE_URL
-const MODEL_URL='rentDetails/'
-const URL=BASE_URL+MODEL_URL
+import firebase from 'firebase'
+import 'firebase/firestore'
+import EventBus from '../../EventBus'
+
 Vue.use(Vuex)
 
 export default{
     state:{
-        rents:[]
+        rents:[],
+        rent:{}
     },
     getters:{
-        getRentDetails:state=>state.rents
+        getRents:state=>state.rents,
+        getCurrentRent:state=>state.rent
     },
     mutations:{
         LoadAllRents(state,payload){
-             // state.rents=payload
-             let prevId=0
-             let cnt=-1
-             console.log(payload)
-             payload.forEach(element => {
-                 var item={
-                     item_detail_id:element.item_detail_id,
-                     item_detail_name:element.item_detail_name,
-                     item_master_id:element.item_master_id,
-                     item_master_name:element.item_master_name,
-                     hsn_code:element.hsn_code,
-                     quantity:element.quantity,
-                     rate:element.rate,
-                     total: element.rate * element.quantity
-                 }
-                 
-                 if(prevId!=element.rent_master_id){
-                     var rent_master={
-                         rent_master_id:element.rent_master_id,
-                         date:element.date,
-                         invoice_no: element.invoice_no,
-                         ba_id:element.ba_id,
-                         ba_name: element.ba_name,
-                         company_id:element.company_id,
-                         company_name:element.company_name,
-                         amount:element.amount,
-                         taxes:element.taxes,
-                         loading_charges:element.loading_charges,
-                         unloading_charges:element.unloading_charges,
-                         transport_charges:element.transport_charges,
-                         is_credit:element.is_credit,
-                         status: element.status,
-                         items:[]    
-                     }
-                     state.rents.push(rent_master)
-                     prevId=element.rent_master_id
-                     cnt++
-                     console.log(rent_master.ba_id)
-                 }
-                 state.rents[cnt].items.push(item)
-                 // console.log(JSON.stringify(state.rents[cnt].items))
-             });
- 
+           state.rents=payload
+        },
+        SetUpdateRent(state,payload){
+            state.rent=payload
+            EventBus.$emit('updateRentItemReceived',payload)
         }
     },
     actions:{
         LoadAllRents({commit,getters,dispatch}){
-            axios.get(URL)
-                .then(res=>{
-                    if(res.status==200){
-                        commit('LoadAllRents',res.data)
-                        console.log(res.data)
-                    }
+            firebase.firestore().collection('rents').orderBy('date').onSnapshot(snapshot=>{
+                var rents=[]
+                snapshot.forEach(doc=>{
+                    var rent=Object.assign({},RentDetails)
+                    rent=doc.data()
+                    rent.rent_id=doc.id
+                    firebase.firestore().collection('rents').doc(doc.id).collection('dispatches').onSnapshot(dispatchSnapshot=>{
+                        var dispatches=[]
+                        dispatchSnapshot.forEach(dispatchDoc=>{
+                            var dispatch=dispatchDoc.data()
+                            dispatch.dispatchId=dispatchDoc.id
+                            dispatches.push(dispatch)
+                        })
+                        rent.dispatchedItems=dispatches
+                    })
+                    rents.push(rent)
+                    
+                })
+                commit('LoadAllRents',rents)
+                
+                setTimeout(()=>{
+                    dispatch('loadDispatches')
+                },5000)
+            })
+        },
+        AddNewRent({commit},payload){
+            delete payload.rent_id
+            var flag=false
+
+            firebase.firestore().collection('rents').add(payload)
+                .then(docRef=>{
+                    console.log(docRef.id)
+                    flag=true
+                    payload.items.forEach(item=>{
+                        firebase.firestore().collection('items').doc(item.item_id).collection('subitems').doc(item.subitem_id).get()
+                            .then(docRef=>{
+                                var subitem=docRef.data()
+                                subitem.quantity-=item.quantity
+                                firebase.firestore().collection('items').doc(item.item_id).collection('subitems').doc(item.subitem_id).update(subitem)
+                                    .then(()=>{
+                                        
+                                    })
+                                    .catch(err=>{
+                                        console.error(err)
+                                    })
+                            })
+                    })
+                    EventBus.$emit("onRentAddedSuccess")
+                })
+                .catch(err=>{
+                    console.error(err)
+                    EventBus.$emit("onRentAddedFailure")
+                })
+            return flag    
+        },
+        loadUpdateRent({commit},payload){
+            firebase.firestore().collection('rents').doc(payload).get()
+                .then(docRef=>{
+                    var rent=docRef.data()
+                    rent.rent_id=docRef.id
+                    commit('SetUpdateRent',rent)
+                })
+                .catch(err=>{
+                    console.error(err)
                 })
         },
-        AddNewRent({commit,getters,dispatch},payload){
-            axios.post(URL,payload)
-                .then(res=>{
-                    if(res.status==200){
-                        console.log("rent success")
-                        dispatch('LoadAllRents')
-                    }
+        deleteRent({commit},payload){
+            console.log(payload)
+            firebase.firestore().collection('rents').doc(payload.rent_id).delete()
+                .then(()=>{
+                    payload.items.forEach(item=>{
+                        firebase.firestore().collection('items').doc(item.item_id).collection('subitems').doc(item.subitem_id).get()
+                            .then(docRef=>{
+                                var updatedItem=docRef.data()
+                                updatedItem.quantity+=item.quantity
+                                firebase.firestore().collection('items').doc(item.item_id).collection('subitems').doc(item.subitem_id).update(updatedItem)
+                                    .then(()=>{
+                                        console.log("updatedold"+updatedItem.quantity)
+                                    })
+                            })
+                            .catch(err=>{
+                                console.error(err)
+                            })
+                    })
+                    console.log("deleted")
+                    return true
                 })
-        }
+                .catch(err=>{
+                    console.error(err)
+                    return false
+                })
+        },
+        updateRent({},payload){
+            var oldPurchaseItems=payload.oldPurchase.items
+            var newPurchaseItems=payload.newPurchase.items
+            var rent_id=payload.newPurchase.rent_id
+            delete payload.newPurchase.rent_id
+            firebase.firestore().collection('rents').doc(rent_id).update(payload.newPurchase)
+                .then(()=>{
+
+                    oldPurchaseItems.forEach(item=>{
+                        firebase.firestore().collection('items').doc(item.item_id).collection('subitems').doc(item.subitem_id).get()
+                            .then(docRef=>{
+                                var updatedItem=docRef.data()
+                                updatedItem.quantity+=item.quantity
+                                firebase.firestore().collection('items').doc(item.item_id).collection('subitems').doc(item.subitem_id).update(updatedItem)
+                                    .then(()=>{
+                                        console.log("updatedold"+updatedItem.quantity)
+                                    })
+                            })
+                            .catch(err=>{
+                                console.error(err)
+                            })
+                    })
+                    setTimeout(()=>{
+                    newPurchaseItems.forEach(item=>{
+                        firebase.firestore().collection('items').doc(item.item_id).collection('subitems').doc(item.subitem_id).get()
+                            .then(docRef=>{
+                                var updatedItem=docRef.data()
+                                updatedItem.quantity-=item.quantity
+                                firebase.firestore().collection('items').doc(item.item_id).collection('subitems').doc(item.subitem_id).update(updatedItem)
+                                    .then(()=>{
+                                        console.log("updatednew"+updatedItem.quantity)
+                                    })
+                            })
+                            .catch(err=>{
+                                console.error(err)
+                            })
+                    })},5000)
+
+                    console.log("updated")
+                })
+                .catch(err=>{
+                    console.error(err)
+                })
+        },
+        loadFilteredRents({commit},payload){
+            firebase.firestore().collection('rents').where('company_id','==',payload).orderBy('date').onSnapshot(snapshot=>{
+                // console.log("jere")
+                var rents=[]
+                snapshot.forEach(doc=>{
+                    var rent=Object.assign({},RentDetails)
+                    rent=doc.data()
+                    rent.rent_id=doc.id
+                    rents.push(rent)
+                })
+                commit('LoadAllRents',rents)
+            })
+        },
+        setUpdateItem({commit},payload){
+            commit('setUpdateItem',payload)
+        },
+        
+        
     }
 }
