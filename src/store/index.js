@@ -10,6 +10,7 @@ import rent from './Rent/index'
 import sites from './Site/index'
 import shared from './Shared'
 import dispatch from './Dispatch'
+import rentReturn from './Rent/return'
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({
@@ -23,34 +24,28 @@ export const store = new Vuex.Store({
         rent,
         sites,
         shared,
-        dispatch
+        dispatch,
+        rentReturn
     },
     state:{
-        count:0,
-        isLoggedIn: false,
-        isLoginPage:false
+        snackbar:{
+            flag:false,
+            message: ''
+        }
     },
     getters: {
-        // isLoggedIn: state=> state.isLoggedIn,
-        isLoginPage: state=> state.isLoginPage
+        getSnackbar:state=>state.snackbar
+
     },
     mutations:{
-        // LOGIN_SUCCESS:(state,payload)=>{
-        //     state.isLoggedIn=!state.isLoggedIn;
-        // },
+        Snackbar(state,payload){
+            state.snackbar=payload
 
-        LOGIN_PAGE:(state,payload)=>{
-            state.isLoginPage=payload;
         }
     },
     actions:{
-        // loginSuccess: (context,payload)=>{
-        //     context.commit("LOGIN_SUCCESS",payload)
-        // }
-
-        loginPage({commit,getters},payload){
-            commit('LOGIN_PAGE',payload);
-            // alert("here  ")
-        }
+       SnackbarToggle:({commit},payload)=>{
+           commit('Snackbar',payload)
+       }
     }
 })

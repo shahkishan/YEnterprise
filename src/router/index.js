@@ -21,6 +21,7 @@ import PurchaseNew from '@/components/Products/Purchase/PurchaseNew'
 import RentNew from '@/components/Products/Rent/RentNew'
 import Invoice from '@/components/Products/Rent/Invoice'
 
+import RentDetails from '@/components/BusinessAssociates/RentDetails/RentDetails'
 Vue.use(Router)
 
 export default new Router({
@@ -123,6 +124,11 @@ export default new Router({
       path:'/invoice',
       name:'Invoice',
       component:Invoice
+    },
+    {
+      path:'/customer/muster',
+      name:"Muster",
+      component:RentDetails
     }
 
 

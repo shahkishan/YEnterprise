@@ -36,6 +36,10 @@
 		<v-footer :fixed="fixed" app>
 			<span>&copy; 2018</span>
 		</v-footer>
+		<v-snackbar v-model="Snackbar.flag" bottom right>
+			{{Snackbar.text}}
+			<v-btn flat color="pink" @click.native="$store.dispatch('SnackbarToggle',{flag:false,text:''})">Close</v-btn>
+		</v-snackbar>
 	</v-app>
 </template>
 
@@ -95,7 +99,10 @@ export default {
 						this.$router.push('login')	
 					}
 				})
-			}
+		},
+		Snackbar(){
+			return this.$store.getters.getSnackbar
+		}
 	},
 	methods:{
 		logout(){

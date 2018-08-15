@@ -224,6 +224,7 @@
 							<v-flex xs12 style="display: flex; flex-wrap: true">
 								<v-btn style="display:flex; flex-grow:1">Print</v-btn>
 								<v-btn style="display:flex; flex-grow:1" @click="showDispatchDialog">Dispatch</v-btn>
+								<v-btn style="display:flex; flex-grow:1" @click="showRentReturnDialog">Rent Return</v-btn>
 								<v-btn style="display:flex; flex-grow:1" >Generate Invoice</v-btn>
 							</v-flex>
 
@@ -279,6 +280,54 @@
 			</v-card>
 		</v-dialog>
 
+		<v-dialog @keydown.esc="escPress" v-model="rentReturnDialog" max-width="50%">
+			<v-card tile style="height:100%;">
+				<v-toolbar dark color="primary">
+					<v-card-title>
+						<span class="headline"> Select items Returned</span>
+
+					</v-card-title>
+					<v-spacer></v-spacer>
+						<v-toolbar-items>
+							<v-btn icon @click.native="rentReturnDialog = false" dark>
+								<v-icon>close</v-icon>
+							</v-btn>
+						</v-toolbar-items>
+				</v-toolbar>
+					<v-flex xs11 sm4 ml-5 mt-5>
+					<v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition" offset-y full-width
+					:nudge-right="40" min-width="290px" :return-value.sync="rentReturn.date">
+						<v-text-field slot="activator" label="Dispatch date" v-model="rentReturn.date" prepend-icon="event" readonly required />
+						<v-date-picker v-model="rentReturn.date" no-title scrollable @change="$refs.menu.save(rentReturn.date)" :min="Rent.date">
+							<v-spacer></v-spacer>
+							<v-btn flat color="primary" @click="menu = false">Cancel</v-btn>
+							<v-btn flat color="primary" @click="$refs.menu.save(date)">OK</v-btn>
+						</v-date-picker>
+					</v-menu>
+				</v-flex>
+				<v-flex ml-5 mr-5 mb-5 mt-5>
+
+					<v-data-table :headers="rentReturnHeaders" light :items="rentedItems" hide-actions class="elevation-1" mb2>
+						<template slot="items" slot-scope="props">
+							<td>{{ props.item.item_name }}</td>
+							<td>{{ props.item.subitem_name }}</td>
+							<td class="text-xs-left">{{ props.item.quantityDispatched }}</td>
+							<td>
+								<v-text-field hint="Items Returned" label="Enter Quantity" mask="#########" v-model="props.item.quantityReturned" style="width:50%"></v-text-field>
+							</td>
+							<td>
+								<v-text-field hint="Damaged Items" label="Enter Quantity" mask="#########" v-model="props.item.quantityDamaged" style="width:50%"></v-text-field>
+							</td>
+						</template>
+					</v-data-table>
+				</v-flex>
+				<v-flex xs4 md2 pb-5 style="margin-left: auto" >
+					<v-btn dark color="primary" @click="prepareRentReturn()">Submit</v-btn>
+				</v-flex>
+			</v-card>
+		</v-dialog>
+
+
 		<v-snackbar v-model="dispatchError" bottom right>
 			{{dispatchErrorText}}
 		</v-snackbar>
@@ -295,33 +344,39 @@
 	import RentDetailsModel from '../../../models/RentDetails'
 	import Headers from '../../../models/headers'
 	import TransactionItemModel from '../../../models/TransactionItemDetails'
-    import Item from '../../../models/Item'
+	import Item from '../../../models/Item'
 	import EventBus from '../../../EventBus'
 	import Dispatch from '../../../models/dispatch'
 	import dispatch from '../../../models/dispatch';
+	import RentReturn from '../../../models/RentReturn'
 	export default {
 		data: () => ({
-			is_credit:false,
-			transactionItemHeaders:Item.headers.transactionItems,
-			dispatchHeaders:Headers.dispatchItemHeaders,			
-			rentDetails:RentDetailsModel,
-			rents:[],
-			index:1,
-			rent:{},
-			snackbar:false,
-			deleteDialog:false,
-            selectedCompany:{name:'All Rents'},
-            itemSearch:'',
-            headers:Headers.rent,
-            rentDialog:false,
-            rentDialogItem:{},
-			dispatchDialog:false,
-			dispatch:Object.assign({},Dispatch.defaultObject),
-			dispatchDisplayItems:[],
-			menu:false,
-			dispatchError:false,
-			dispatchErrorText:'Please enter a valid quantity'
-
+			is_credit: false,
+			transactionItemHeaders: Item.headers.transactionItems,
+			dispatchHeaders: Headers.dispatchItemHeaders,
+			rentDetails: RentDetailsModel,
+			rents: [],
+			index: 1,
+			rent: {},
+			snackbar: false,
+			deleteDialog: false,
+			selectedCompany: {
+				name: 'All Rents'
+			},
+			itemSearch: '',
+			headers: Headers.rent,
+			rentDialog: false,
+			rentDialogItem: {},
+			dispatchDialog: false,
+			dispatch: Object.assign({}, Dispatch.defaultObject),
+			dispatchDisplayItems: [],
+			menu: false,
+			dispatchError: false,
+			dispatchErrorText: 'Please enter a valid quantity',
+			rentReturnDialog:false,
+			rentReturn:Object.assign({},RentReturn.defaultObject),
+			rentReturnHeaders:RentReturn.headers.ReturnTableHeaders,
+			rentedItems:[]
 		}),
 
 
@@ -333,67 +388,69 @@
 		},
 
 		created() {
-            EventBus.$on("rentsLoaded",rents=>{
-                this.rentDialogItem=rents[rents.length]
-            })
+			EventBus.$on("rentsLoaded", rents => {
+				this.rentDialogItem = rents[rents.length]
+			})
 		},
 
 		methods: {
 
-            deleteRent(){
-				var res=this.$store.dispatch('deleteRent',this.Rent)
-				if(res)
-					this.snackbar=true
-                this.deleteDialog=false
-                this.rentDialog=false
-                
+			deleteRent() {
+				var res = this.$store.dispatch('deleteRent', this.Rent)
+				if (res)
+					this.snackbar = true
+				this.deleteDialog = false
+				this.rentDialog = false
+
 			},
-			updateRent(){
+			updateRent() {
 				// this.$store.dispatch('setUpdateItem',this.Rent)
 				// EventBus.$emit('updateRentItemReceived',this.Rent)
-				this.$router.push('rent/'+this.Rent.rent_id+'/update')
-            },
-            
-			displayRents(company){
-				if(company!=0){
-					this.selectedCompany=company
-					this.$store.dispatch('loadFilteredRents',company.company_id)
+				this.$router.push('rent/' + this.Rent.rent_id + '/update')
+			},
+
+			displayRents(company) {
+				if (company != 0) {
+					this.selectedCompany = company
+					this.$store.dispatch('loadFilteredRents', company.company_id)
 				} else {
-					this.selectedCompany={
-						name:'All Rents'
+					this.selectedCompany = {
+						name: 'All Rents'
 					}
 					this.$store.dispatch('LoadAllRents')
 				}
-					
+
 			},
-            itemSelected(rent){
-				console.log(JSON.stringify(rent))
-                this.rentDialogItem=JSON.parse(JSON.stringify(rent))
-                this.rentDialog=true
-            },
-            formatDate(date){
-                var arr=date.split('-')
-                return arr[2]+"-"+arr[1]+"-"+arr[0]
-            },
-			escPress(){
-				if(this.dispatchDialog){
-					this.dispatchDialog=false
+			itemSelected(rent) {
+				// console.log(JSON.stringify(rent))
+				this.rentDialogItem = JSON.parse(JSON.stringify(rent))
+				this.rentDialog = true
+			},
+			formatDate(date) {
+				var arr = date.split('-')
+				return arr[2] + "-" + arr[1] + "-" + arr[0]
+			},
+			escPress() {
+				if (this.dispatchDialog) {
+					this.dispatchDialog = false
+				} else if(this.rentReturnDialog){
+					this.rentReturnDialog=false
 				} else {
-					this.rentDialog=false
+					this.rentDialog = false
 				}
 			},
-			showDispatchDialog(){
-				this.dispatchDisplayItems=[]
-				this.Rent.items.forEach(item=>{
-					var i={
-						item_id:item.item_id,
-						item_name:item.item_name,
-						subitem_id:item.subitem_id,
-						subitem_name:item.subitem_name,
-						quantity:item.quantity,
-						quantityDispatched:''
+			showDispatchDialog() {
+				this.dispatchDisplayItems = []
+				this.Rent.items.forEach(item => {
+					var i = {
+						item_id: item.item_id,
+						item_name: item.item_name,
+						subitem_id: item.subitem_id,
+						subitem_name: item.subitem_name,
+						quantity: item.quantity,
+						quantityDispatched: ''
 					}
-					if(this.Rent.dispatchedItems){
+					if (this.Rent.dispatchedItems) {
 						// var itemObj=this.Rent.dispatchedItems.find(itm=>{
 						// 	return itm.items.find(itm1=>{
 						// 		console.log(itm1.subitem_id+" "+i.subitem_id)
@@ -402,145 +459,223 @@
 						// })
 						// console.log(itemObj)
 
-						this.Rent.dispatchedItems.forEach(dispatchedItem=>{
-							var item1=dispatchedItem.items.find(item1=>{
-								return item1.subitem_id===i.subitem_id;
-							})							
-							if(item1){
-								i.quantity-=item1.quantityDispatched
+						this.Rent.dispatchedItems.forEach(dispatchedItem => {
+							var item1 = dispatchedItem.items.find(item1 => {
+								return item1.subitem_id === i.subitem_id;
+							})
+							if (item1) {
+								i.quantity -= item1.quantityDispatched
 							}
 						})
 
 						// if(itemObj)
 						// 	i.quantity-=itemObj.quantityDispatched
 					}
-					console.log(i.quantity)
-					if(i.quantity>0)
+					// console.log(i.quantity)
+					if (i.quantity > 0)
 						this.dispatchDisplayItems.push(i)
 				})
-				this.dispatchDialog=true
+				this.dispatchDialog = true
 			},
-			prepareDispatch(){
+			prepareDispatch() {
 				// console.log(JSON.stringify(this.dispatchDisplayItems))
-				if(this.dispatchDisplayItems){
-				var items=[]
-				this.dispatchDisplayItems.forEach(item=>{
-					if(item.quantity<item.quantityDispatched){
-						this.dispatchError=true
+				if(this.dispatch.dispatchDate.length<=0){
+					this.$store.dispatch('SnackbarToggle',{flag:true,text:'Please select dispatch date!'})
+					return
+				}
+
+				if (this.dispatchDisplayItems) {
+					var items = []
+					this.dispatchDisplayItems.forEach(item => {
+						if (item.quantity < item.quantityDispatched) {
+							this.dispatchError = true
+							return
+						}
+
+						if (item.quantityDispatched > 0) {
+							items.push(item)
+						}
+					})
+
+					if (items.length > 0) {
+						this.dispatch.items = items
+
+						var payload = {
+							rent_id: this.Rent.rent_id,
+							dispatch: this.dispatch
+						}
+
+						this.$store.dispatch('dispatchItems', payload)
+
+
+						// console.log(JSON.stringify(this.dispatch))
+						this.dispatchDialog = false
+					}
+				} else {
+
+				}
+			},
+			showRentReturnDialog(){
+				console.clear()
+				console.log(JSON.stringify(this.Rent))
+				if(this.Rent.dispatchedItems.length>0){
+					var rentedItems=[]
+					this.Rent.dispatchedItems.forEach(dispatch=>{
+						dispatch.items.forEach(item=>{
+							var index=rentedItems.map(x=>x.subitem_id).indexOf(item.subitem_id)
+							// console.log(index)
+							if(index>=0){
+								rentedItems[index].quantityDispatched=parseInt(item.quantityDispatched,10)+parseInt(rentedItems[index].quantityDispatched)
+							} else {
+								rentedItems.push(item)
+							}
+						})
+					})
+					if(rentedItems.length>0 && this.Rent.returns && this.Rent.returns.length>0){
+						console.log("return")
+						this.Rent.returns.forEach(returnTransaction=>{
+							returnTransaction.items.forEach(item=>{
+								var index=rentedItems.map(x=>x.subitem_id).indexOf(item.subitem_id)
+								if(index>0){
+									rentedItems[index].quantityDispatched=parseInt(rentedItems.quantityDispatched)-parseInt(item.quantityReturned)-parseInt(item.quantityDamaged)
+									if(parseInt(rentedItems.quantity)===0){
+										rentedItems.slice(index,index+1)
+									}
+								}
+							})
+						})
+					}
+					console.log(JSON.stringify(rentedItems))
+
+					if(rentedItems.length>0){
+						this.rentedItems=rentedItems
+						this.rentReturnDialog=true
+					} else {
+						this.$store.dispatch('SnackbarToggle',{flag:true,text:'No items left to return!'})	
+					}
+				} else {
+					this.$store.dispatch('SnackbarToggle',{flag:true,text:'No items dispatched yet!'})
+				}
+			},
+			prepareRentReturn(){
+				
+				if(this.rentReturn.date.length<=0){
+					this.$store.dispatch('SnackbarToggle',{flag:true,text:'Please select return date!'})
+					return
+				} 
+				
+				
+
+				var qtyFlag=false
+				this.rentedItems.forEach(item=>{
+					if((parseInt(item.quantityReturned)+parseInt(item.quantityDamaged))>item.quantityDispatched){
+						this.$store.dispatch('SnackbarToggle',{flag:true,text:'Invalid Quantity!'})
+						qtyFlag=true
 						return
 					}
-
-					if(item.quantityDispatched>0){
-						items.push(item)
-					}
+					
+					delete item.quantityDispatched
+					delete item.quantity
 				})
 
-				if(items.length>0){
-				this.dispatch.items=items
+				if(qtyFlag)
+					return
 
-				var payload={
+				this.rentReturn.items=this.rentedItems
+				var payload = {
 					rent_id:this.Rent.rent_id,
-					dispatch:this.dispatch
+					rentReturn:this.rentReturn
 				}
-
-				this.$store.dispatch('dispatchItems',payload)
-
-
-				console.log(JSON.stringify(this.dispatch))
-				this.dispatchDialog=false
-}
-				}
-				else {
-
-				}
+				this.$store.dispatch('AddRentReturn',payload)
+				this.rentReturnDialog=false
 			}
+
 		},
-		computed:{      
-			Rent(){
+		computed: {
+			Rent() {
 				return this.rentDialogItem
 			},
-			Rents(){
+			Rents() {
 				return this.$store.getters.getRents
 			},
-			Company(){
-				var company=this.$store.getters.getCompanies.find(company=>{
+			Company() {
+				var company = this.$store.getters.getCompanies.find(company => {
 					return this.Rent.company_id === company.company_id
 				})
 				return company
 			},
-			Customer(){
-				if(this.index>0){
-				var customer=this.$store.getters.getCustomers.find(customer=>{
-					return this.Rent.customer_id===customer.customer_id
-				})
-				return customer
+			Customer() {
+				if (this.index > 0) {
+					var customer = this.$store.getters.getCustomers.find(customer => {
+						return this.Rent.customer_id === customer.customer_id
+					})
+					return customer
 				}
 			},
-			isIGST(){
-				if(this.index>0){
-					if(this.Customer.statecode!=this.Company.statecode)
-					return true
-				else 
-					return false
-				}	
+			isIGST() {
+				if (this.index > 0) {
+					if (this.Customer.statecode != this.Company.statecode)
+						return true
+					else
+						return false
+				}
 			},
-			GST(){
-				return this.Rent.taxes/2
+			GST() {
+				return this.Rent.taxes / 2
 			},
-			IGST(){
+			IGST() {
 				return this.Rent.taxes
 			},
-			isGst(){
-				if(this.Rent.taxes>0)
+			isGst() {
+				if (this.Rent.taxes > 0)
 					return true
-					else{
-						return false
-					}
+				else {
+					return false
+				}
 			},
-			previous(){
-				var length=this.$store.getters.getRents.length
-				if(length-this.index>0)
+			previous() {
+				var length = this.$store.getters.getRents.length
+				if (length - this.index > 0)
 					return true
-				else 
-					return false	
+				else
+					return false
 			},
-			next(){
-				var length=this.$store.getters.getRents.length
-				if(length-this.index>=0 && length-this.index < length-1)
+			next() {
+				var length = this.$store.getters.getRents.length
+				if (length - this.index >= 0 && length - this.index < length - 1)
 					return true
-				else 
-					return false	
+				else
+					return false
 			},
-			noRent(){
-				if(this.$store.getters.getRents.length==0)
+			noRent() {
+				if (this.$store.getters.getRents.length == 0)
 					return true
-				else return false	
+				else return false
 			},
-			date(){
-				var date=this.Rent.date.split('-');
-				return date[2]+'-'+date[1]+'-'+date[0]
+			date() {
+				var date = this.Rent.date.split('-');
+				return date[2] + '-' + date[1] + '-' + date[0]
 			},
-			Companies(){
+			Companies() {
 				return this.$store.getters.getCompanies
 			},
-			TotalRentAmount(){
-				var total=0
+			TotalRentAmount() {
+				var total = 0
 				// var rents = this.$store.getters.getRents
 				// for (var rent in rents){
 				// 	total+=(rent.amount )
 				// }
-				for(var i=0;i<this.Rents.length;i++){
-					total+=this.Rents[i].amount
+				for (var i = 0; i < this.Rents.length; i++) {
+					total += this.Rents[i].amount
 				}
-				
+
 				return total
 			},
-			DispatchDate(){
-				if(this.dispatch.dispatchDate){
-				var arr=this.dispatch.dispatchDate.split('-')
-				return arr[2]+"-"+arr[1]+"-"+arr[0]
-				}
-				else {
+			DispatchDate() {
+				if (this.dispatch.dispatchDate) {
+					var arr = this.dispatch.dispatchDate.split('-')
+					return arr[2] + "-" + arr[1] + "-" + arr[0]
+				} else {
 					return ''
 				}
 			}
